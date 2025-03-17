@@ -40,7 +40,7 @@ info = f"""
 温度:{weather['daily']['temperature'][0]['min']} - {weather['daily']['temperature'][0]['max']}°C, 白天温度:{weather['daily']['temperature_08h_20h'][0]['min']} - {weather['daily']['temperature_08h_20h'][0]['max']}°C, 夜间温度:{weather['daily']['temperature_20h_32h'][0]['min']} - {weather['daily']['temperature_20h_32h'][0]['max']}°C    
 紫外线强度{weather['daily']['life_index']['ultraviolet'][0]['desc']},总体感觉{weather['daily']['life_index']['comfort'][0]['desc']}      
     
-预测:{weather['minutely']['description']},{weather['hourly']['description']}    
+预测:{weather['hourly']['description']}    
 {tip}
 """
 
