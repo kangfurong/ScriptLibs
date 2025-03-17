@@ -8,10 +8,11 @@ import notify
 import os
 #填写下面的信息，经纬度请自行百度，使用青龙自带的推送
 #key = "你的彩云天气API key"
-#彩云天气的API，请自行申请
+#彩云天气的API，请自行申请https://platform.caiyunapp.com/dashboard/index
 key = os.getenv("CYTQAPI_KEY")
-lon = "你所在位置的经度"
-lat = "你所在位置的纬度"
+#根据需要，调整下面的经纬度
+lon = "104.15207645932662"
+lat = "30.60314948199061"
 
 #下面的不用管了
 api_url = f"https://api.caiyunapp.com/v2.6/{key}/{lon},{lat}/weather?alert=true&realtime&minutely" 
