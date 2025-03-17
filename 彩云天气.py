@@ -10,7 +10,7 @@ import os
 #key = "你的彩云天气API key"
 #彩云天气的API，请自行申请https://platform.caiyunapp.com/dashboard/index
 key = os.getenv("CYTQAPI_KEY")
-#根据需要，调整下面的经纬度
+#根据需要，调整下面的经纬度 https://jingweidu.bmcx.com/
 lon = "104.15207645932662"
 lat = "30.60314948199061"
 
@@ -20,7 +20,7 @@ response = requests.get(api_url)
 data = json.loads(response.text)
 weather = data['result']
 
-if weather['alert']['content']:
+if 'alert' in weather and weather['alert']['content']:
   tip = weather['alert']['content'][0]['description'] 
 else:
   tip = ""
