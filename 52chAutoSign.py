@@ -6,7 +6,7 @@ import notify
 if __name__ == '__main__':
     #从环境变量中获取cookie，请自行设置该环境变量
     cookie = os.getenv("WoAiCH_KEY")
-     header = {
+    header = {
         "cookie": cookie,
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Encoding": "gzip, deflate, br",
