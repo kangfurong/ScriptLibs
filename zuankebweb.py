@@ -5,7 +5,7 @@ import os
 import hashlib
 
 # 关键词列表，可外部修改
-keywords = ["立减金", "LJJ", "支付宝"]
+keywords = ["微信立减金", "支付有优惠", "加油卡"]
 
 # 用来存储已存在的 MD5 哈希值
 existing_md5_set = set()
