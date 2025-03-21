@@ -3,9 +3,10 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import os
 import hashlib
+import notify
 
 # 关键词列表，可外部修改
-keywords = ["微信立减金", "支付有优惠", "有礼乐开花", "加油卡","bug"]
+keywords = ["微信立减金", "支付有优惠", "有礼乐开花", "加油卡","bug","一键价保"]
 
 # 用来存储已存在的 MD5 哈希值
 existing_md5_set = set()
@@ -91,7 +92,7 @@ def fetch_post_content(post_url):
         
         # 计算 postdataV 的 MD5 哈希
         postdata_md5 = hashlib.md5(postdataV.encode('utf-8')).hexdigest()
-        print(f"MD5 哈希值: {postdata_md5}")
+        #print(f"MD5 哈希值: {postdata_md5}")
         
         # 将 MD5 哈希值添加到列表
         calculated_md5_list.append(postdata_md5)
@@ -99,7 +100,7 @@ def fetch_post_content(post_url):
         # 如果 MD5 哈希值不在已存在的 MD5 集合中，打印出来
         if not is_md5_exists(postdata_md5):
             #print(f"新的 MD5 哈希值: {postdata_md5}")
-            print(postdataV)
+            #print(postdataV)
             notify.send("优惠信息", postdataV)
 
     except requests.exceptions.RequestException as e:
