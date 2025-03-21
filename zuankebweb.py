@@ -6,7 +6,7 @@ import hashlib
 import notify
 
 # 关键词列表，可外部修改
-keywords = ["微信立减金", "支付有优惠", "有礼乐开花", "加油卡","bug","一键价保"]
+keywords = ["微信立减金", "支付有优惠", "有礼乐开花", "加油卡","bug","一键价保","金币兑换"]
 
 # 用来存储已存在的 MD5 哈希值
 existing_md5_set = set()
@@ -56,7 +56,7 @@ def fetch_post_content(post_url):
         
         # 查找 class 为 'post-head' 的 div 标签并获取其下的 h1 标签
         post_head = soup.find('div', class_='post-head')
-        postheaderV = "title:\r\n"
+        postheaderV = "标题:"
 
         if post_head:
             h1_tag = post_head.find('h1')
@@ -70,7 +70,7 @@ def fetch_post_content(post_url):
         
         # 查找同时满足 class 为 'post-content' 且 id 为 'xbcontent' 的 div 标签
         post_content = soup.find('div', class_='post-content', id='xbcontent')
-        postcontentV = "\r\ncontent:\r\n"
+        postcontentV = "\r\n正文:"
         if post_content:
             #print("获取的文章内容:")
             p_tags = post_content.find_all('p')
