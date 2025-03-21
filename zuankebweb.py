@@ -56,7 +56,7 @@ def fetch_post_content(post_url):
         
         # 查找 class 为 'post-head' 的 div 标签并获取其下的 h1 标签
         post_head = soup.find('div', class_='post-head')
-        postheaderV = "标题:"
+        postheaderV = "标题:\n"
 
         if post_head:
             h1_tag = post_head.find('h1')
@@ -70,7 +70,7 @@ def fetch_post_content(post_url):
         
         # 查找同时满足 class 为 'post-content' 且 id 为 'xbcontent' 的 div 标签
         post_content = soup.find('div', class_='post-content', id='xbcontent')
-        postcontentV = "\r\n正文:"
+        postcontentV = "\r\n正文:\n"
         if post_content:
             #print("获取的文章内容:")
             p_tags = post_content.find_all('p')
