@@ -112,14 +112,14 @@ def fetch_post_content(post_url):
 def save_md5_to_file():
     try:
         # 先清空 md5.txt 文件
-        with open('md5.txt', 'w', encoding='utf-8') as file:
+        with open('zuankebwebmd5.txt', 'w', encoding='utf-8') as file:
             pass  # 只打开并清空文件
         
         # 将计算出的 MD5 哈希值批量写入文件
-        with open('md5.txt', 'a', encoding='utf-8') as file:
+        with open('zuankebwebmd5.txt', 'a', encoding='utf-8') as file:
             for md5_hash in calculated_md5_list:
                 file.write(md5_hash + '\n')  # 每个MD5哈希值占一行
-        print(f"所有 MD5 哈希值已保存到 md5.txt 文件，共写入 {len(calculated_md5_list)} 个 MD5 哈希值")
+        print(f"所有 MD5 哈希值已保存到 zuankebwebmd5.txt 文件，共写入 {len(calculated_md5_list)} 个 MD5 哈希值")
     
     except Exception as e:
         print(f"保存MD5时出现错误: {e}")
@@ -130,7 +130,7 @@ def is_md5_exists(md5_hash):
 
 def load_existing_md5():
     # 从文件按行读取并加载已存在的 MD5 哈希值到集合
-    if os.path.exists('md5.txt'):
+    if os.path.exists('zuankebwebmd5.txt'):
         with open('md5.txt', 'r', encoding='utf-8') as file:
             for line in file:
                 # 按行读取并去除行末的换行符
