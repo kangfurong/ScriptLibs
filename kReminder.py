@@ -170,6 +170,7 @@ def main():
     if messages_to_output:
         print("\n--- 输出的消息 ---")
         print("\n".join(messages_to_output))
+        notify.send("定时提醒", messages_to_output)
 
     # 如果有新的MD5值，统一追加到文件中
     if new_md5s:
