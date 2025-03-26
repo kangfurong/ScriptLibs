@@ -82,26 +82,29 @@ def print_message_by_day_or_week(message_dict, week_message_dict, current_date_s
         date_str = input_datetime.strftime('%Y-%m-%d')
 
         # 先按号数（日期）查找
-        if day in message_dict:
-            messages = message_dict[day]
-            for time, message_list in messages.items():
-                # 将字典中的时间转换为 datetime 格式以进行比较
-                time_obj = datetime.strptime(time, '%H:%M').replace(year=year, month=month, day=day)
-                time_diff = abs(current_date - time_obj)
+        for key in message_dict:
+            # 将key转为整数列表，支持类似 "8,18,28"
+            days = [int(x) for x in key.split(',')]
+            if day in days:
+                messages = message_dict[key]
+                for time, message_list in messages.items():
+                    # 将字典中的时间转换为 datetime 格式以进行比较
+                    time_obj = datetime.strptime(time, '%H:%M').replace(year=year, month=month, day=day)
+                    time_diff = abs(current_date - time_obj)
 
-                # 判断当前时间与字典中的时间差是否在6分钟以内
-                if time_diff <= timedelta(minutes=6):
-                    for message in message_list:
-                        #messages_to_output.append(f"日期: {date_str} 时间: {time} - {message}")
-                        # 计算文本的MD5值并检查
-                        calculated_md5 = calculate_md5(date_str, time, weekday, message)
+                    # 判断当前时间与字典中的时间差是否在6分钟以内
+                    if time_diff <= timedelta(minutes=6):
+                        for message in message_list:
+                            #messages_to_output.append(f"日期: {date_str} 时间: {time} - {message}")
+                            # 计算文本的MD5值并检查
+                            calculated_md5 = calculate_md5(date_str, time, weekday, message)
                         
-                        # 如果MD5值不在现有的MD5记录中，添加到新MD5集合
-                        if calculated_md5 not in existing_md5:
-                            messages_to_output.append(f"- {message}")
-                            new_md5s.append(calculated_md5)
+                            # 如果MD5值不在现有的MD5记录中，添加到新MD5集合
+                            if calculated_md5 not in existing_md5:
+                                messages_to_output.append(f"- {message}")
+                                new_md5s.append(calculated_md5)
 
-        # 如果日期号数没有匹配，则按星期几查找
+        # 按星期几查找
         if weekday in week_message_dict:
             messages = week_message_dict[weekday]
             for time, message_list in messages.items():
