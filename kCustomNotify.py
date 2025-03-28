@@ -2,6 +2,23 @@ import requests
 import json
 import os
 
+def send_bark_notification(title, content, env_var_name='BARK_URL_KEY'):
+    bark_url = os.getenv(env_var_name)
+    if not bark_url:
+        print(f"环境变量 {env_var_name} 未设置")
+        return
+
+    url = f"{bark_url}/{title}/{content}"
+
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print("Bark消息发送成功")
+        else:
+            print(f"Bark消息发送失败: {response.status_code}, {response.text}")
+    except Exception as e:
+        print(f"Bark请求异常: {e}")
+        
 def send_wecom_notification(title, content, env_var_name='WECOM_BOT_DEFAULT_KEY'):
     key = os.getenv(env_var_name)
     
