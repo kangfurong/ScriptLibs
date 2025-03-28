@@ -4,7 +4,7 @@ import os
 
 def send_wecom_notification(title, content, env_var_name='WECOM_BOT_DEFAULT_KEY'):
     key = os.getenv(env_var_name)
-    #key = 'c8b2abef-a104-4304-9ec5-13df6a69e72e'
+    
     if not key:
         print(f"环境变量 {env_var_name} 未设置")
         return
