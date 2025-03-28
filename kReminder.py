@@ -1,6 +1,7 @@
 import hashlib
 from datetime import datetime, timedelta
-import notify
+#import notify
+import kCustomNotify
 
 def check_and_update_date():
     try:
@@ -191,7 +192,8 @@ def main():
         print("\n--- 输出的消息 ---")
         notifytxt = "\n".join(messages_to_output)
         print(notifytxt)
-        notify.send("定时提醒", notifytxt)
+        kCustomNotify.send_wecom_notification("定时提醒",notifytxt,"WECOM_BOT_GENERALNOTIFY_KEY")
+        #notify.send("定时提醒", notifytxt)
 
     # 如果有新的MD5值，统一追加到文件中
     if new_md5s:
