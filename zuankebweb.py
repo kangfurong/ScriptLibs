@@ -131,7 +131,7 @@ def is_md5_exists(md5_hash):
 def load_existing_md5():
     # 从文件按行读取并加载已存在的 MD5 哈希值到集合
     if os.path.exists('zuankebwebmd5.txt'):
-        with open('md5.txt', 'r', encoding='utf-8') as file:
+        with open('zuankebwebmd5.txt', 'r', encoding='utf-8') as file:
             for line in file:
                 # 按行读取并去除行末的换行符
                 existing_md5_set.add(line.strip())  # 去掉换行符并添加到集合
