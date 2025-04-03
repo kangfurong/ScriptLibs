@@ -52,11 +52,12 @@ def reset_md5_file():
     except Exception as e:
         print(f"[错误] 重置 MD5 记录失败: {e}")
 
-# 追加新 MD5 记录
-def save_md5_history(md5_hash):
+# 追加新 MD5 记录，同时更新 md5_history，避免重复推送
+def save_md5_history(md5_hash, md5_history):
     try:
         with open(MD5_FILE, "a", encoding="utf-8") as file:
             file.write(md5_hash + "\n")
+        md5_history.add(md5_hash)  # 立即更新 md5_history，防止重复推送
     except Exception as e:
         print(f"[错误] 写入 MD5 记录失败: {e}")
 
@@ -124,7 +125,7 @@ def scrape_and_notify():
                     # 检查 MD5 是否已存在
                     if md5_hash not in md5_history:
                         messages.append(message)
-                        save_md5_history(md5_hash)  # 保存新 MD5
+                        save_md5_history(md5_hash, md5_history)  # 立即更新 md5_history，避免重复发送
 
         # 发送通知（批量推送）
         send_wechat_message(messages)
