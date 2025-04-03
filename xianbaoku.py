@@ -7,14 +7,11 @@ from datetime import datetime
 import kCustomNotify
 
 # 从环境变量读取 BASE_URL，如果不存在，使用默认值
-BASE_URL = os.getenv("BASE_URL", "https://new.xianbao.fun/")
+BASE_URL = os.getenv("BASE_URL_KEY", "https://new.xianbao.fun/")
 URL = BASE_URL
 
-# 企业微信机器人 Webhook 地址 (请替换为你的实际 Webhook)
-WECHAT_WEBHOOK = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=你的KEY"
-
 # 关键词
-KEYWORDS = ["立减金", "LJJ", "刷卡金"]
+KEYWORDS = ["微信立减金", "支付有优惠"]
 
 # MD5 记录文件
 MD5_FILE = "xianbaokuMD5.txt"
