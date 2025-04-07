@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import os
 import hashlib
-import notify
+#import notify
+import kCustomNotify
 
 # 关键词列表，可外部修改
 keywords = ["微信立减金", "支付有优惠", "有礼乐开花", "加油卡","bug","一键价保","金币兑换","百度地图打车",\
@@ -102,7 +103,8 @@ def fetch_post_content(post_url):
         if not is_md5_exists(postdata_md5):
             #print(f"新的 MD5 哈希值: {postdata_md5}")
             #print(postdataV)
-            notify.send("优惠信息", postdataV)
+            #notify.send("优惠信息", postdataV)
+            kCustomNotify.send_wecom_notification("线报提醒",postdataV,"WECOM_BOT_DAILYNOTIFY_KEY")
 
     except requests.exceptions.RequestException as e:
         print(f"获取文章内容时请求错误: {e}")
