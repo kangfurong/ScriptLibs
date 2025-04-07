@@ -11,7 +11,7 @@ BASE_URL = os.getenv("BASE_URL_KEY", "https://new.xianbao.fun/")
 URL = BASE_URL
 
 # 关键词
-KEYWORDS = ["微信立减金", "支付有优惠"]
+KEYWORDS = ["微信支付立减金", "支付有优惠",'历史最低','bug']
 
 # MD5 记录文件
 MD5_FILE = "xianbaokuMD5.txt"
