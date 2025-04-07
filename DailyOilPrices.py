@@ -1,5 +1,6 @@
 import os
 import requests
+from bs4 import BeautifulSoup
 import kCustomNotify
 
 OIL_API_URL = "https://v3.alapi.cn/api/oil"
