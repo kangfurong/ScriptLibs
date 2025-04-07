@@ -4,7 +4,8 @@
 
 import requests
 import json
-import notify 
+#import notify 
+import kCustomNotify
 import os
 #填写下面的信息，经纬度请自行百度，使用青龙自带的推送
 #key = "你的彩云天气API key"
@@ -45,4 +46,5 @@ info = f"""
 """
 
 print(info)
-notify.send("彩云天气", info)
+#notify.send("彩云天气", info)
+kCustomNotify.send_wecom_notification("彩云天气",info,"WECOM_BOT_DAILYNOTIFY_KEY")
