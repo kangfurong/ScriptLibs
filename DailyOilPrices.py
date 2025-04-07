@@ -71,7 +71,7 @@ def fetch_oil_prices(token, target_province=None):
                 province = item["province"]
                 if target_province and target_province not in province:
                     continue
-                line = f"92号:{item['o92']}元, \n95号:{item['o95']}元, \n98号:{item['o98']}元, \n0号柴油:{item['o0']}元"
+                line = f"92号:{item['o92']}元,\n95号:{item['o95']}元,\n98号:{item['o98']}元,\n0号柴油:{item['o0']}元,\n"
                 line = line + fetch_tiaojiaorili()[0]
                 print(line)
                 kCustomNotify.send_wecom_notification("今日四川油价",line,"WECOM_BOT_DAILYNOTIFY_KEY")
