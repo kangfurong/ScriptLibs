@@ -104,7 +104,7 @@ def fetch_post_content(post_url):
             #print(f"新的 MD5 哈希值: {postdata_md5}")
             #print(postdataV)
             #notify.send("优惠信息", postdataV)
-            kCustomNotify.send_wecom_notification("线报提醒",postdataV,"WECOM_BOT_DAILYNOTIFY_KEY")
+            kCustomNotify.send_wecom_notification("线报提醒",postdataV,"WECOM_BOT_GENERALNOTIFY_KEY")
 
     except requests.exceptions.RequestException as e:
         print(f"获取文章内容时请求错误: {e}")
