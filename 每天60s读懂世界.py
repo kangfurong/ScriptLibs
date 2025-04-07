@@ -1,49 +1,42 @@
-# @author frkang
-# 作者仓库:https://github.com/aefa6/QinglongScript.git
-# 觉得不错麻烦点个star谢谢
-# 使用青龙自带的通知，某些推送不支持较长的文本推送，故默认分片推送，如果需要合并推送请将25和26行加#注释掉，29行去除#注释即可。
+import os
 import requests
-import json
-import notify
+import kCustomNotify
 
-#url = 'https://60s.viki.moe/?encoding=text'
-url = 'http://lzw.me/x/iapi/60s/?e=text'
+API_URL = "https://v3.alapi.cn/api/zaobao"
 
-content = ''
+def fetch_zaobao():
+    # 从环境变量中获取 Token
+    token = os.getenv("ALAPI_NEWS_KEY")
 
-try:
-    resp = requests.get(url)
-    content = resp.text
-except Exception as e:
-    print(e)
+    if not token:
+        print("❌ 未设置环境变量 ALAPI_NEWS_KEY，请先设置 token。")
+        return
 
-# 分割成多个子字符串
-substrings = content.split('\n')
-# 给每个子字符串加上序号并添加到新列表中
-numbered_substrings = []
-for i, sub in enumerate(substrings, start=1):
-    numbered_substring = f"{i}. {sub}"
-    numbered_substrings.append(numbered_substring)
+    params = {
+        "token": token,
+        "format": "json"
+    }
 
-# 将新列表连接起来
-result = '\n'.join(numbered_substrings)
+    try:
+        response = requests.get(API_URL, params=params)
+        response.raise_for_status()
+        data = response.json()
 
+        if data.get("success") and data.get("code") == 200:
+            zaobao = data["data"]
+            news_combined = "\n".join(zaobao["news"])
 
-# 分片处理
-#pieces = resp.text.split('\n', 8)
-#content1 = '\n'.join(pieces[:8])  
-#content2 = '\n'.join(pieces[8:])
+            #print(f"\n📅 日期：{zaobao['date']}")
+            #print("\n📰 今日早报（合并内容）：\n")
+            print(news_combined)
+            kCustomNotify.send_wecom_notification("今日早报",notifytxt,"WECOM_BOT_DAILYNOTIFY_KEY")
+            #print("\n💬 微语：", zaobao["weiyu"])
+            #print("\n🖼️ 图片链接：", zaobao["image"])
+            #print("🔊 音频链接：", zaobao["audio"])
+        else:
+            print(f"❌ 获取早报失败：{data.get('message', '未知错误')}")
+    except requests.RequestException as e:
+        print(f"❌ 网络请求错误：{e}")
 
-#info1 = f"""
-#{content1}   
-#"""
-#info2 = f"""
-#{content2}   
-#"""
-
-# 发送分片推送  
-#notify.send("每天60s读懂世界", info1 + "\n\n")
-#notify.send("每天60s读懂世界", info2)
-
-# 全文整段发送推送  
-notify.send("每日要闻", result)
+if __name__ == "__main__":
+    fetch_zaobao()
