@@ -6,10 +6,10 @@ API_URL = "https://v3.alapi.cn/api/zaobao"
 
 def fetch_zaobao():
     # 从环境变量中获取 Token
-    token = os.getenv("ALAPI_NEWS_KEY")
+    token = os.getenv("ALAPI_FREE_KEY")
 
     if not token:
-        print("❌ 未设置环境变量 ALAPI_NEWS_KEY，请先设置 token。")
+        print("❌ 未设置环境变量 ALAPI_FREE_KEY，请先设置 token。")
         return
 
     params = {
