@@ -29,7 +29,7 @@ def fetch_zaobao():
             #print(f"\n📅 日期：{zaobao['date']}")
             #print("\n📰 今日早报（合并内容）：\n")
             print(news_combined)
-            kCustomNotify.send_wecom_notification("今日早报",notifytxt,"WECOM_BOT_DAILYNOTIFY_KEY")
+            kCustomNotify.send_wecom_notification("今日早报",news_combined,"WECOM_BOT_DAILYNOTIFY_KEY")
             #print("\n💬 微语：", zaobao["weiyu"])
             #print("\n🖼️ 图片链接：", zaobao["image"])
             #print("🔊 音频链接：", zaobao["audio"])
