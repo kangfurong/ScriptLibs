@@ -75,7 +75,18 @@ class kMD5FileManager:
         except Exception as e:
             print(f"Error in write_precomputed_md5: {e}")
             return False
-
+            
+    def write_md5_with_date(self, text):
+        try:
+            if not isinstance(text, str):
+                raise ValueError("Input text must be a string")
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            md5_hash = self._compute_md5(today_str + text)
+            return self._write_md5(md5_hash)
+        except Exception as e:
+            print(f"Error in write_md5_from_text: {e}")
+            return False
+            
     def write_md5_from_text(self, text):
         try:
             if not isinstance(text, str):
