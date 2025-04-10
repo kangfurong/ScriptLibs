@@ -62,7 +62,8 @@ class kMD5FileManager:
 
         if self._is_md5_exists(md5_hash):
             # 不需要写入文件
-            return True
+            print("warning：MD5 exist，pass")
+            return False
 
         self._md5_cache.add(md5_hash)
         return self._write_to_file()
