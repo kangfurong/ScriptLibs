@@ -25,8 +25,12 @@ proxy_list = [
 # 白名单定义
 whitekeylist = [
     {
-        "keywords": [["苹果","apple","Apple","iPhone"],["16"]],
-        "price_range": (3500, 4500)
+        "keywords": [["苹果","Apple","iPhone"],["16"]],
+        "price_range": (3000, 4000)
+    },
+    {
+        "keywords": [["华为","huawei",],["mate70","p70"]],
+        "price_range": (2500, 3800)
     },
     {
         "keywords": [["沐浴露"], ["舒肤佳"]],
@@ -48,13 +52,15 @@ def match_white_key_and_price_range(title: str, price_text: str) -> bool:
         return False
     price_val = float(price_match.group(1))
 
+    title_lower = title.lower()
+
     for item in whitekeylist:
         keyword_groups = item.get("keywords", [])
         min_price, max_price = item.get("price_range", (0, float('inf')))
 
         if min_price <= price_val <= max_price:
             # 所有关键词组都需要满足“至少一个命中”
-            if all(any(kw in title for kw in group) for group in keyword_groups):
+           if all(any(kw.lower() in title_lower for kw in group) for group in keyword_groups):
                 return True
     return False
 
