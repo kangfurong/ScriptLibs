@@ -68,7 +68,7 @@ def send_wechat_message(messages):
         return
     
     content = "\n\n".join(messages)  # 合并多条消息
-    kCustomNotify.send_wecom_notification("线报提醒",content,"WECOM_BOT_GENERALNOTIFY_KEY")
+    kCustomNotify.send_wecom_notification("线报酷提醒",content,"WECOM_BOT_GENERALNOTIFY_KEY")
 
 # 爬取并解析网页
 def scrape_and_notify():
