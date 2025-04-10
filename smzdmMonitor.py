@@ -168,7 +168,7 @@ if __name__ == "__main__":
             if file_manager.write_md5_with_date(product.get('title', '') + product.get('price', '')):
                 notifytxt = f"标题:{product.get('title', '')}\n单价:{product.get('price', '')}\n 链接:{product.get('href', '')}" 
                 print(notifytxt)
-                kCustomNotify.send_wecom_notification("线报提醒",notifytxt,"WECOM_BOT_GENERALNOTIFY_KEY")
+                kCustomNotify.send_wecom_notification("SMZDM提醒",notifytxt,"WECOM_BOT_GENERALNOTIFY_KEY")
             else:
                 pass
                 #print("md5 write failed")
