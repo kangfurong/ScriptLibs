@@ -144,7 +144,8 @@ def crawl_smzdm():
                         products.append(product_info)
 
                     else:
-                        print("[不符合白名单或价格范围] 跳过当前li")
+                        pass
+                        #print("[不符合白名单或价格范围] 跳过当前li")
 
                 else:
                     print(f"[未找到z-feed-content标签] class: z-feed-content, 跳过当前li")
@@ -175,4 +176,5 @@ if __name__ == "__main__":
                 pass
                 #print("md5 write failed")
     else:
-        print("[没有获取到商品数据]")
+        pass
+        #print("[没有获取到商品数据]")
