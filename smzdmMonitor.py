@@ -26,7 +26,7 @@ proxy_list = [
 whitekeylist = [
     {
         "keywords": [["苹果","apple","Apple","iPhone"],["16"]],
-        "price_range": (3500, 5000)
+        "price_range": (3500, 4500)
     },
     {
         "keywords": [["沐浴露"], ["舒肤佳"]],
