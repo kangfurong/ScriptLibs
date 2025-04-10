@@ -68,92 +68,112 @@ def crawl_smzdm():
     url = "https://www.smzdm.com/jingxuan/"
     products = []
 
-    try:
-        # 模拟请求间隔，防止反爬
-        time.sleep(random.uniform(1, 3))
+    max_retries = 5  # 最大重试次数
 
-        # 随机选择代理或直连
-        proxy = get_random_proxy()
+    for attempt in range(max_retries):
+        try:
+            # 模拟请求间隔，防止反爬
+            time.sleep(random.uniform(1, 3))
 
-        # 发送请求，设置请求头和随机代理
-        response = requests.get(url, headers=headers, proxies=proxy, timeout=10)
+            # 随机选择代理或直连
+            proxy = get_random_proxy()
 
-        if response.status_code != 200:
-            print(f"[请求失败] 状态码: {response.status_code}")
-            return products
+            # 发送请求，设置请求头和随机代理
+            response = requests.get(url, headers=headers, proxies=proxy, timeout=10)
 
-        print(f"[请求成功] 获取页面内容")
-        soup = BeautifulSoup(response.text, "html.parser")
-        li_list = soup.find_all("li", class_="J_feed_za feed-row-wide")
+            if response.status_code != 200:
+                print(f"[请求失败] 状态码: {response.status_code}, 尝试次数 {attempt + 1}")
+                if attempt < max_retries - 1:
+                    print("[重试...]")
+                    time.sleep(2)  # 重试前暂停2秒
+                    continue
+                else:
+                    print("[最大重试次数已达]")
+                    return products
 
-        if not li_list:
-            print("[未找到符合的li标签] class: J_feed_za feed-row-wide")
-            return products
+            print(f"[请求成功] 获取页面内容")
+            soup = BeautifulSoup(response.text, "html.parser")
+            li_list = soup.find_all("li", class_="J_feed_za feed-row-wide")
+
+            if not li_list:
+                print("[未找到符合的li标签] class: J_feed_za feed-row-wide")
+                return products
 
 
-        # 遍历每个li标签
-        for li in li_list:
-            try:
-                # 获取标题和价格的相关信息
-                feed_content = li.find("div", class_="z-feed-content")
-                if feed_content:
-                    title_tag = feed_content.find("h5", class_="feed-block-title").find("a")
-                    title = title_tag.get_text(strip=True) if title_tag else None
-                    href = title_tag.get("href") if title_tag else None
+            # 遍历每个li标签
+            for li in li_list:
+                try:
+                    # 获取标题和价格的相关信息
+                    feed_content = li.find("div", class_="z-feed-content")
+                    if feed_content:
+                        title_tag = feed_content.find("h5", class_="feed-block-title").find("a")
+                        title = title_tag.get_text(strip=True) if title_tag else None
+                        href = title_tag.get("href") if title_tag else None
 
-                    # 输出日志，若没有找到标题
-                    if not title:
-                        print(f"[未找到标题] class: feed-block-title, 跳过当前li")
-                        continue
+                        # 输出日志，若没有找到标题
+                        if not title:
+                            print(f"[未找到标题] class: feed-block-title, 跳过当前li")
+                            continue
 
-                    # 获取价格
-                    price_tag = feed_content.find("a", class_="z-highlight")
-                    price = price_tag.get_text(strip=True) if price_tag else None
+                        # 获取价格
+                        price_tag = feed_content.find("a", class_="z-highlight")
+                        price = price_tag.get_text(strip=True) if price_tag else None
 
-                    # 输出日志，若没有找到价格
-                    if not price:
-                        print(f"[未找到价格] class: z-highlight, 跳过当前li")
-                        continue
+                        # 输出日志，若没有找到价格
+                        if not price:
+                            print(f"[未找到价格] class: z-highlight, 跳过当前li")
+                            continue
 
-                    # 检查是否匹配白名单及价格区间
-                    if match_white_key_and_price_range(title, price):
-                        # 获取值得和不值得的值
-                        zhi_tag = feed_content.find("a", class_="J_zhi_like_fav price-btn-up")
-                        zhiV = zhi_tag.find("span", class_="unvoted-wrap").find("span").get_text(strip=True) if zhi_tag else None
-                        if not zhiV:
-                            print(f"[未找到值得] class: J_zhi_like_fav price-btn-up")
+                        # 检查是否匹配白名单及价格区间
+                        if match_white_key_and_price_range(title, price):
+                            # 获取值得和不值得的值
+                            zhi_tag = feed_content.find("a", class_="J_zhi_like_fav price-btn-up")
+                            zhiV = zhi_tag.find("span", class_="unvoted-wrap").find("span").get_text(strip=True) if zhi_tag else None
+                            if not zhiV:
+                                print(f"[未找到值得] class: J_zhi_like_fav price-btn-up")
 
-                        buzhi_tag = feed_content.find("a", class_="J_zhi_like_fav price-btn-down")
-                        buzhiV = buzhi_tag.find("span", class_="unvoted-wrap").find("span").get_text(strip=True) if buzhi_tag else None
-                        if not buzhiV:
-                            print(f"[未找到不值] class: J_zhi_like_fav price-btn-down")
+                            buzhi_tag = feed_content.find("a", class_="J_zhi_like_fav price-btn-down")
+                            buzhiV = buzhi_tag.find("span", class_="unvoted-wrap").find("span").get_text(strip=True) if buzhi_tag else None
+                            if not buzhiV:
+                                print(f"[未找到不值] class: J_zhi_like_fav price-btn-down")
 
-                        # 存储信息为字典
-                        product_info = {
-                            "title": title,
-                            "price": price,
-                            "href": href,
-                            "zhi": zhiV,
-                            "buzhi": buzhiV
-                        }
+                            # 存储信息为字典
+                            product_info = {
+                                "title": title,
+                                "price": price,
+                                "href": href,
+                                "zhi": zhiV,
+                                "buzhi": buzhiV
+                            }
 
-                        # 将商品信息添加到列表
-                        products.append(product_info)
+                            # 将商品信息添加到列表
+                            products.append(product_info)
+
+                        else:
+                            pass
+                            #print("[不符合白名单或价格范围] 跳过当前li")
 
                     else:
-                        pass
-                        #print("[不符合白名单或价格范围] 跳过当前li")
+                        print(f"[未找到z-feed-content标签] class: z-feed-content, 跳过当前li")
 
-                else:
-                    print(f"[未找到z-feed-content标签] class: z-feed-content, 跳过当前li")
+                except Exception as e:
+                    print(f"[处理错误] 错误: {e}, 跳过当前li")
 
-            except Exception as e:
-                print(f"[处理错误] 错误: {e}, 跳过当前li")
-    
-    except requests.RequestException as e:
-        print(f"[请求异常] 错误: {e}")
-    except Exception as e:
-        print(f"[爬虫异常] 错误: {e}")
+            # 成功获取页面后退出重试循环
+            break
+
+        except requests.RequestException as e:
+            print(f"[请求异常] 错误: {e}, 尝试次数 {attempt + 1}")
+            if attempt < max_retries - 1:
+                print("[重试...]")
+                time.sleep(2)
+                continue
+            else:
+                print("[最大重试次数已达]")
+                break
+        except Exception as e:
+            print(f"[爬虫异常] 错误: {e}")
+            break
 
     return products
 
