@@ -36,10 +36,7 @@ whitekeylist = [
         "keywords": [["大米"], ["5kg","10kg"]],
         "price_range": (5, 15)
     },
-    {
-        "keywords": [["电风扇"], ["JM",]],
-        "price_range": (10, 20)
-    },
+    
 ]
 
 # 判断是否匹配白名单和价格范围
