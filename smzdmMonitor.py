@@ -94,6 +94,7 @@ def get_html(url, proxy_list, max_retries=3):
 
 # 🕸 主爬虫逻辑
 def crawl_smzdm():
+    #https://www.smzdm.com/jingxuan/p2/  表示第二页
     url = "https://www.smzdm.com/jingxuan/"
     proxy_list = None
     #proxy_list = load_proxies()
