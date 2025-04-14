@@ -1,195 +1,201 @@
 import requests
 from bs4 import BeautifulSoup
-import datetime
-import re
-import time
 import random
+import json
+import time
+import os
 from libs.kToolLibs import kMD5FileManager
 import kCustomNotify
 
-# 请求头设置
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                  "AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/122.0.0.0 Safari/537.36"
-}
+# =============================
+# 白名单配置说明：
+# whitekeylist 为一个列表，每个元素是一个配置项，包含：
+# - keywords：关键词列表，表示必须命中这些关键词组（每组是“或”关系，组与组之间是“与”关系）
+# - "keywords": [["苹果", "iPhone"], ["16"]],表示 苹果 16，iphone 16都是关键字
+# - exclude_keywords：排除关键词组，每组是“与”关系，组之间是“或”关系
+# - "exclude_keywords": [["16e"], ["二手", "手机"]],表示排除包含16e 和 包含 二手且手机
+# - price_range：一个二元组 (min_price, max_price)，表示价格范围（元）
+# =============================
 
-# 代理设置：可以根据实际情况更换或添加更多代理
-#proxy_list = [
- #   {"http": "http://127.0.0.1:1080", "https": "http://127.0.0.1:1080"},
-#    {"http": "http://192.168.0.1:1080", "https": "http://192.168.0.1:1080"}
-#]
-proxy_list = [
-]
-
-# 白名单定义
 whitekeylist = [
     {
-        "keywords": [["苹果","Apple","iPhone"],["16"]],
-        "price_range": (3000, 4000)
+        "keywords": [["苹果", "iPhone"], ["16"],["256","512"]],
+        "exclude_keywords": [["16e"], ["二手", "手机"]],
+        "price_range": (2000, 4000)
     },
     {
-        "keywords": [["华为","huawei",],["mate70","p70"]],
-        "price_range": (2500, 3800)
+        "keywords": [["华为", "huawei"], ["p70","pura 70","mate 70"],["256","512","1T"]],
+        "exclude_keywords": [["16e"], ["二手", "手机"]],
+        "price_range": (2000, 4000)
     },
     {
-        "keywords": [["沐浴露"], ["舒肤佳"]],
+        "keywords": [["破壁机", "WFB"]],
+        "exclude_keywords": [["国产"],],
+        "price_range": (0, 1500)
+    },
+    {
+        "keywords": [["沐浴露", "舒肤佳"]],
+        "exclude_keywords": [],
         "price_range": (0, 10)
-    },
-    {
-        "keywords": [["大米"], ["5kg","10kg"]],
-        "price_range": (5, 15)
-    },
-    
+    }
 ]
 
-# 判断是否匹配白名单和价格范围
-def match_white_key_and_price_range(title: str, price_text: str) -> bool:
-    """匹配多个关键词组，每组为“或”，组之间为“与”，并且价格在范围内"""
-    price_match = re.search(r'(\d+(?:\.\d+)?)', price_text.replace(',', ''))
-    if not price_match:
-        print(f"[价格提取失败] price_text: {price_text}")
-        return False
-    price_val = float(price_match.group(1))
+# 随机 UA
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...",
+    "Mozilla/5.0 (Linux; Android 10; SM-G970F)..."
+]
 
-    title_lower = title.lower()
+# 📦 从文件读取代理
+def load_proxies(filename='valid_proxies.json'):
+    proxies = []
+    if os.path.exists(filename):
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                for item in data:
+                    proxy = f"{item['type']}://{item['ip']}:{item['port']}"
+                    proxies.append(proxy)
+        except Exception as e:
+            print("读取代理文件失败：", e)
+    return proxies
 
-    for item in whitekeylist:
-        keyword_groups = item.get("keywords", [])
-        min_price, max_price = item.get("price_range", (0, float('inf')))
+# 🔍 匹配包含关键词
+def match_keywords(title, keywords):
+    title_cleaned = title.replace(" ", "").lower()
+    return all(
+        any(k.replace(" ", "").lower() in title_cleaned for k in group)
+        for group in keywords
+    )
 
-        if min_price <= price_val <= max_price:
-            # 所有关键词组都需要满足“至少一个命中”
-           if all(any(kw.lower() in title_lower for kw in group) for group in keyword_groups):
-                return True
-    return False
+# ❌ 匹配排除关键词
+def match_excludes(title, exclude_keywords):
+    title_cleaned = title.replace(" ", "").lower()
+    return any(
+        all(k.replace(" ", "").lower() in title_cleaned for k in group)
+        for group in exclude_keywords
+    )
 
-# 获取随机代理或直连
-def get_random_proxy():
-    # 70%概率使用代理，30%使用直连
-    return random.choice(proxy_list) if proxy_list and random.random() < 0.7 else {}
+# 🌐 请求网页
+def get_html(url, proxy_list, max_retries=3):
+    for attempt in range(max_retries):
+        use_proxy = random.random() < 0.7 and proxy_list
+        proxy = random.choice(proxy_list) if use_proxy else None
+        proxies = {"http": proxy, "https": proxy} if proxy else None
+        headers = {"User-Agent": random.choice(USER_AGENTS)}
+        try:
+            print(f"[请求尝试 {attempt + 1}] 使用代理：{bool(proxy)} - {proxy or '直连'}")
+            response = requests.get(url, headers=headers, proxies=proxies, timeout=10)
+            if response.status_code == 200:
+                return response.text
+            else:
+                print(f"[状态码异常] {response.status_code}")
+        except Exception as e:
+            print(f"[请求异常] {e}")
+        time.sleep(1)
+    print("[请求失败] 多次重试后放弃。")
+    return None
 
-# 爬取页面内容
+# 🕸 主爬虫逻辑
 def crawl_smzdm():
     url = "https://www.smzdm.com/jingxuan/"
-    products = []
+    proxy_list = None
+    #proxy_list = load_proxies()
+    html = get_html(url, proxy_list)
+    if not html:
+        return []
 
-    max_retries = 5  # 最大重试次数
+    soup = BeautifulSoup(html, 'html.parser')
+    li_tags = soup.find_all("li", class_="J_feed_za feed-row-wide")
+    if not li_tags:
+        print("未找到 li 标签 (class=J_feed_za feed-row-wide)")
+        return []
 
-    for attempt in range(max_retries):
+    results = []
+    for li in li_tags:
+        content_div = li.find("div", class_="z-feed-content")
+        if not content_div:
+            print("未找到 div 标签 (class=z-feed-content)")
+            continue
+
+        # 获取标题 + 链接
+        h5 = content_div.find("h5", class_="feed-block-title")
+        if not h5:
+            print("未找到 h5 标签 (class=feed-block-title)")
+            continue
+        title_a = h5.find("a")
+        if not title_a:
+            print("未找到标题 a 标签 (class=feed-block-title 下)")
+            continue
+        title = title_a.get_text(strip=True)
+        href = title_a.get("href", "")
+
+        # 获取价格
+        price_a = content_div.find("a", class_="z-highlight")
+        if not price_a:
+            print("未找到价格 a 标签 (class=z-highlight)")
+            continue
+        price_str = price_a.get_text(strip=True).replace("￥", "").replace(",", "")
         try:
-            # 模拟请求间隔，防止反爬
-            time.sleep(random.uniform(1, 3))
-
-            # 随机选择代理或直连
-            proxy = get_random_proxy()
-
-            # 发送请求，设置请求头和随机代理
-            response = requests.get(url, headers=headers, proxies=proxy, timeout=10)
-
-            if response.status_code != 200:
-                print(f"[请求失败] 状态码: {response.status_code}, 尝试次数 {attempt + 1}")
-                if attempt < max_retries - 1:
-                    print("[重试...]")
-                    time.sleep(2)  # 重试前暂停2秒
-                    continue
-                else:
-                    print("[最大重试次数已达]")
-                    return products
-
-            print(f"[请求成功] 获取页面内容")
-            soup = BeautifulSoup(response.text, "html.parser")
-            li_list = soup.find_all("li", class_="J_feed_za feed-row-wide")
-
-            if not li_list:
-                print("[未找到符合的li标签] class: J_feed_za feed-row-wide")
-                return products
-
-
-            # 遍历每个li标签
-            for li in li_list:
-                try:
-                    # 获取标题和价格的相关信息
-                    feed_content = li.find("div", class_="z-feed-content")
-                    if feed_content:
-                        title_tag = feed_content.find("h5", class_="feed-block-title").find("a")
-                        title = title_tag.get_text(strip=True) if title_tag else None
-                        href = title_tag.get("href") if title_tag else None
-
-                        # 输出日志，若没有找到标题
-                        if not title:
-                            print(f"[未找到标题] class: feed-block-title, 跳过当前li")
-                            continue
-
-                        # 获取价格
-                        price_tag = feed_content.find("a", class_="z-highlight")
-                        price = price_tag.get_text(strip=True) if price_tag else None
-
-                        # 输出日志，若没有找到价格
-                        if not price:
-                            print(f"[未找到价格] class: z-highlight, 跳过当前li")
-                            continue
-
-                        # 检查是否匹配白名单及价格区间
-                        if match_white_key_and_price_range(title, price):
-                            # 获取值得和不值得的值
-                            zhi_tag = feed_content.find("a", class_="J_zhi_like_fav price-btn-up")
-                            zhiV = zhi_tag.find("span", class_="unvoted-wrap").find("span").get_text(strip=True) if zhi_tag else None
-                            if not zhiV:
-                                print(f"[未找到值得] class: J_zhi_like_fav price-btn-up")
-
-                            buzhi_tag = feed_content.find("a", class_="J_zhi_like_fav price-btn-down")
-                            buzhiV = buzhi_tag.find("span", class_="unvoted-wrap").find("span").get_text(strip=True) if buzhi_tag else None
-                            if not buzhiV:
-                                print(f"[未找到不值] class: J_zhi_like_fav price-btn-down")
-
-                            # 存储信息为字典
-                            product_info = {
-                                "title": title,
-                                "price": price,
-                                "href": href,
-                                "zhi": zhiV,
-                                "buzhi": buzhiV
-                            }
-
-                            # 将商品信息添加到列表
-                            products.append(product_info)
-
-                        else:
-                            pass
-                            #print("[不符合白名单或价格范围] 跳过当前li")
-
-                    else:
-                        print(f"[未找到z-feed-content标签] class: z-feed-content, 跳过当前li")
-
-                except Exception as e:
-                    print(f"[处理错误] 错误: {e}, 跳过当前li")
-
-            # 成功获取页面后退出重试循环
-            break
-
-        except requests.RequestException as e:
-            print(f"[请求异常] 错误: {e}, 尝试次数 {attempt + 1}")
-            if attempt < max_retries - 1:
-                print("[重试...]")
-                time.sleep(2)
-                continue
-            else:
-                print("[最大重试次数已达]")
-                break
+            price = float(''.join(c for c in price_str if c.isdigit() or c == '.'))
         except Exception as e:
-            print(f"[爬虫异常] 错误: {e}")
-            break
+            print(f"价格转换失败：{price_str} - 错误：{e}")
+            continue
 
-    return products
+        # 获取“值”
+        zhi_a = content_div.find("a", class_="J_zhi_like_fav price-btn-up")
+        zhiV = None
+        if zhi_a:
+            zhi_span = zhi_a.find("span", class_="unvoted-wrap")
+            if zhi_span and zhi_span.span:
+                zhiV = zhi_span.span.get_text(strip=True)
+            else:
+                print("未找到 span 值标签 (class=unvoted-wrap)")
+        else:
+            print("未找到 a 标签 (class=J_zhi_like_fav price-btn-up)")
 
-if __name__ == "__main__":
-    # 执行爬取任务
+        # 获取“不值”
+        buzhi_a = content_div.find("a", class_="J_zhi_like_fav price-btn-down")
+        buzhiV = None
+        if buzhi_a:
+            buzhi_span = buzhi_a.find("span", class_="unvoted-wrap")
+            if buzhi_span and buzhi_span.span:
+                buzhiV = buzhi_span.span.get_text(strip=True)
+            else:
+                print("未找到 span 不值标签 (class=unvoted-wrap)")
+        else:
+            print("未找到 a 标签 (class=J_zhi_like_fav price-btn-down)")
+
+        # 关键词匹配
+        matched = False
+        for rule in whitekeylist:
+            if match_keywords(title, rule["keywords"]) and not match_excludes(title, rule.get("exclude_keywords", [])):
+                min_p, max_p = rule.get("price_range", (0, float('inf')))
+                if min_p <= price <= max_p:
+                    matched = True
+                    break
+        if not matched:
+            continue
+
+        item = {
+            "title": title,
+            "href": href,
+            "price": price,
+            "zhi": zhiV,
+            "buzhi": buzhiV
+        }
+        results.append(item)
+
+    return results
+
+# ✅ 启动入口
+if __name__ == '__main__':
     product_data = crawl_smzdm()
     file_manager = kMD5FileManager('smzdmMonitorMD5.txt')
     # 打印所有商品的字典数据
     if product_data:
-        #print(f"[爬取完成] 获取到 {len(product_data)} 条商品数据：")
+        print(f"[爬取完成] 获取到 {len(product_data)} 条商品数据:")
         for product in product_data:
             if file_manager.write_md5_with_date(product.get('title', '') + product.get('price', '')):
                 notifytxt = f"标题:{product.get('title', '')}\n单价:{product.get('price', '')}\n 链接:{product.get('href', '')}" 
@@ -200,4 +206,3 @@ if __name__ == "__main__":
                 #print("md5 write failed")
     else:
         pass
-        #print("[没有获取到商品数据]")
