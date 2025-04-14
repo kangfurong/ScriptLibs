@@ -176,7 +176,7 @@ def crawl_smzdm():
         item = {
             "title": title,
             "href": href,
-            "price": price,
+            "price": str(price),
             "zhi": zhiV,
             "buzhi": buzhiV
         }
