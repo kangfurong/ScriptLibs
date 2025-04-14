@@ -29,11 +29,6 @@ whitekeylist = [
         "price_range": (2000, 4000)
     },
     {
-        "keywords": [["破壁机", "WFB"]],
-        "exclude_keywords": [["国产"],],
-        "price_range": (0, 1500)
-    },
-    {
         "keywords": [["沐浴露", "舒肤佳"]],
         "exclude_keywords": [],
         "price_range": (0, 10)
