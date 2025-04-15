@@ -19,14 +19,24 @@ import kCustomNotify
 
 whitekeylist = [
     {
-        "keywords": [["苹果", "iPhone"], ["16"],["256","512"]],
-        "exclude_keywords": [["16e"],["MAC"], ["二手", "手机"]],
-        "price_range": (2000, 4000)
+        "keywords": [["苹果", "iPhone"], ["16"],["256","512","1T"]],
+        "exclude_keywords": [["16e"],["MAC"], ["二手"],],
+        "price_range": (1000, 4000)
     },
     {
-        "keywords": [["华为", "huawei"], ["p70","pura 70","mate 70"],["256","512","1T"]],
-        "exclude_keywords": [["16e"], ["二手", "手机"]],
-        "price_range": (2000, 4000)
+        "keywords": [["华为", "huawei"], ["p70","pura 70","mate 70","mate 60"],["256","512","1T"]],
+        "exclude_keywords": [["16e"], ["二手"],],
+        "price_range": (1000, 4000)
+    },
+    {
+        "keywords": [["菜籽油","食用油","玉米油",],["5L"],],
+        "exclude_keywords": [],
+        "price_range": (0, 35)
+    },
+    {
+        "keywords": [["大米","金龙鱼","福临门","五常","柴火大院" ],["5kg"],],
+        "exclude_keywords": [],
+        "price_range": (0, 15)
     },
     {
         "keywords": [["沐浴露", ],["舒肤佳"],],
