@@ -112,6 +112,15 @@ def get_html(url, proxy_list, max_retries=3):
     print("[请求失败] 多次重试后放弃。")
     return None
 
+# 🧮 处理价格中多余小数点（保留前两个段）
+def sanitize_price(price_str):
+    if not isinstance(price_str, str):
+        return price_str
+    parts = price_str.split('.')
+    if len(parts) > 2:
+        return '.'.join(parts[:2])
+    return price_str
+    
 # 🕸 主爬虫逻辑
 def crawl_smzdm():
     #https://www.smzdm.com/jingxuan/p2/  表示第二页
@@ -154,7 +163,7 @@ def crawl_smzdm():
             continue
         price_str = price_a.get_text(strip=True).replace("￥", "").replace(",", "")
         try:
-            price = float(''.join(c for c in price_str if c.isdigit() or c == '.'))
+            price = float(sanitize_price(''.join(c for c in price_str if c.isdigit() or c == '.')))
         except Exception as e:
             print(f"价格转换失败：{price_str} - 错误：{e}")
             continue
