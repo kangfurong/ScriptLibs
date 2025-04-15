@@ -29,7 +29,7 @@ whitekeylist = [
         "price_range": (2000, 4000)
     },
     {
-        "keywords": [["沐浴露", "舒肤佳"]],
+        "keywords": [["沐浴露", ],["舒肤佳"]],
         "exclude_keywords": [],
         "price_range": (0, 10)
     }
@@ -39,7 +39,17 @@ whitekeylist = [
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...",
-    "Mozilla/5.0 (Linux; Android 10; SM-G970F)..."
+    "Mozilla/5.0 (Linux; Android 10; SM-G970F)...",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; M2007J17C) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Mobile Safari/537.36 Xiaomi",
+    "Mozilla/5.0 (Linux; Android 10; ELS-AN00 Build/HUAWEIELS-AN00) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Mobile Safari/537.36 Huawei",
+    "Mozilla/5.0 (Linux; Android 10; V1981A) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.110 Mobile Safari/537.36 Vivo",
+    "Mozilla/5.0 (Linux; Android 11; Redmi Note 10 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SAMSUNG SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/17.0 Chrome/96.0.4664.45 Mobile Safari/537.36"
 ]
 
 # 📦 从文件读取代理
