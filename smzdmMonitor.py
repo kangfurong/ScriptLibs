@@ -20,7 +20,7 @@ import kCustomNotify
 whitekeylist = [
     {
         "keywords": [["苹果", "iPhone"], ["16"],["256","512"]],
-        "exclude_keywords": [["16e"], ["二手", "手机"]],
+        "exclude_keywords": [["16e"],["MAC"], ["二手", "手机"]],
         "price_range": (2000, 4000)
     },
     {
@@ -29,7 +29,7 @@ whitekeylist = [
         "price_range": (2000, 4000)
     },
     {
-        "keywords": [["沐浴露", ],["舒肤佳"]],
+        "keywords": [["沐浴露", ],["舒肤佳"],],
         "exclude_keywords": [],
         "price_range": (0, 10)
     }
