@@ -40,6 +40,11 @@ whitekeylist = [
         "price_range": (0, 15)
     },
     {
+        "keywords": [["特仑苏","安慕希", ],["16盒"],],
+        "exclude_keywords": [],
+        "price_range": (0, 30)
+    },
+    {
         "keywords": [["沐浴露", ],["舒肤佳"],],
         "exclude_keywords": [],
         "price_range": (0, 10)
