@@ -21,12 +21,12 @@ import kCustomNotify
 whitekeylist = [
     {
         "keywords": [["苹果", "iPhone"], ["16"],["256","512","1T"]],
-        "exclude_keywords": [["16e"],["MAC"], ["二手"],],
+        "exclude_keywords": [["16e"],["MAC"], ["二手"],["以旧换新"],],
         "price_range": (1000, 4000)
     },
     {
         "keywords": [["华为", "huawei"], ["p70","pura 70","mate 70","mate 60"],["256","512","1T"]],
-        "exclude_keywords": [["16e"], ["二手"],],
+        "exclude_keywords": [["二手"],["以旧换新"],],
         "price_range": (1000, 4000)
     },
     {
