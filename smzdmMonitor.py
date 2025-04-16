@@ -4,6 +4,7 @@ import random
 import json
 import time
 import os
+import re
 from libs.kToolLibs import kMD5FileManager
 import kCustomNotify
 
@@ -95,9 +96,10 @@ def match_excludes(title, exclude_keywords):
 # 🌐 请求网页
 def get_html(url, proxy_list, max_retries=3):
     for attempt in range(max_retries):
-        use_proxy = random.random() < 0.7 and proxy_list
+        use_proxy = random.random() < 1 and proxy_list
         proxy = random.choice(proxy_list) if use_proxy else None
-        proxies = {"http": proxy, "https": proxy} if proxy else None
+        #proxies = {"http": proxy, "https": proxy} if proxy else None
+        proxies = {"http": proxy} if proxy else None
         headers = {"User-Agent": random.choice(USER_AGENTS)}
         try:
             print(f"[请求尝试 {attempt + 1}] 使用代理：{bool(proxy)} - {proxy or '直连'}")
@@ -112,18 +114,18 @@ def get_html(url, proxy_list, max_retries=3):
     print("[请求失败] 多次重试后放弃。")
     return None
 
-# 🧮 处理价格中多余小数点（保留前两个段）
-def sanitize_price(price_str):
-    if not isinstance(price_str, str):
-        return price_str
-    parts = price_str.split('.')
-    if len(parts) > 2:
-        return '.'.join(parts[:2])
-    return price_str
-    
 # 🕸 主爬虫逻辑
-def crawl_smzdm():
-    #https://www.smzdm.com/jingxuan/p2/  表示第二页
+def match_whitelist(price, title):
+    matched = False
+    for rule in whitekeylist:
+        if match_keywords(title, rule["keywords"]) and not match_excludes(title, rule.get("exclude_keywords", [])):
+            min_p, max_p = rule.get("price_range", (0, float('inf')))
+            if min_p <= price <= max_p:
+                matched = True
+                break
+    return matched
+
+def crawl_smzdm_jingxuan():
     url = "https://www.smzdm.com/jingxuan/"
     proxy_list = None
     #proxy_list = load_proxies()
@@ -163,7 +165,7 @@ def crawl_smzdm():
             continue
         price_str = price_a.get_text(strip=True).replace("￥", "").replace(",", "")
         try:
-            price = float(sanitize_price(''.join(c for c in price_str if c.isdigit() or c == '.')))
+            price = float(''.join(c for c in price_str if c.isdigit() or c == '.'))
         except Exception as e:
             print(f"价格转换失败：{price_str} - 错误：{e}")
             continue
@@ -193,20 +195,14 @@ def crawl_smzdm():
             print("未找到 a 标签 (class=J_zhi_like_fav price-btn-down)")
 
         # 关键词匹配
-        matched = False
-        for rule in whitekeylist:
-            if match_keywords(title, rule["keywords"]) and not match_excludes(title, rule.get("exclude_keywords", [])):
-                min_p, max_p = rule.get("price_range", (0, float('inf')))
-                if min_p <= price <= max_p:
-                    matched = True
-                    break
+        matched = match_whitelist(price, title)
         if not matched:
             continue
 
         item = {
             "title": title,
             "href": href,
-            "price": str(price),
+            "price": price,
             "zhi": zhiV,
             "buzhi": buzhiV
         }
@@ -214,20 +210,117 @@ def crawl_smzdm():
 
     return results
 
+
+#提取价格
+def extract_price(text):
+    try:
+        # 提取文本中第一个浮点数
+        match = re.search(r"(\d+(?:\.\d+)?)", text.replace(",", ""))
+        return float(match.group(1)) if match else 0.0
+    except Exception as e:
+        print(f"价格转换失败{text}, 错误:{e}")
+        return 0.0
+
+#爬取发现页
+def crawl_smzdm_faxian(page_num):
+    url = f"https://faxian.smzdm.com/p{page_num}/"
+    print(f"抓取第 {page_num} 页：{url}")
+    try:
+        proxy_list = None
+        #proxy_list = load_proxies()
+        html = get_html(url, proxy_list)
+        if not html:
+            return []
+        #response = requests.get(url, headers=headers, timeout=10)
+        #response.raise_for_status()
+        soup = BeautifulSoup(html, "html.parser")
+        data = []
+
+        # 抓取 feed-hot-card 区块
+        for card in soup.select("div.feed-hot-card"):
+            try:
+                a_tag = card.find("a")
+                href = a_tag["href"] if a_tag and a_tag.has_attr("href") else ""
+                title_tag = card.select_one("div.feed-hot-title")
+                title = title_tag.get_text(strip=True) if title_tag else ""
+                price_tag = card.select_one("span.z-highlight")
+                price = extract_price(price_tag.get_text()) if price_tag else 0.0
+
+                # 关键词匹配
+                matched = match_whitelist(price, title)
+                if not matched:
+                    continue
+
+                data.append({
+                    "title": title,
+                    "href": href,
+                    "price": price,
+                    "zhi": 0,
+                    "buzhi": 0
+                })
+            except Exception as e:
+                print(f"⚠️ 热门卡片解析错误：{e}")
+
+        # 抓取 feed-block-ver 区块
+        for card in soup.select("div.feed-block-ver"):
+            try:
+                h5 = card.find("h5", class_="feed-ver-title")
+                a_tag = h5.find("a") if h5 else None
+                href = a_tag["href"] if a_tag and a_tag.has_attr("href") else ""
+                title = a_tag.get_text(strip=True) if a_tag else ""
+                price_tag = card.select_one("div.z-highlight.z-ellipsis")
+                price = extract_price(price_tag.get_text()) if price_tag else 0.0
+
+                # 关键词匹配
+                matched = match_whitelist(price, title)
+                if not matched:
+                    continue
+
+                data.append({
+                    "title": title,
+                    "href": href,
+                    "price": price,
+                    "zhi": 0,
+                    "buzhi": 0
+                })
+            except Exception as e:
+                print(f"⚠️ 竖卡片解析错误：{e}")
+
+        return data
+
+    except Exception as e:
+        print(f"❌ 抓取失败（第 {page_num} 页）：{e}")
+        return []
+
+
 # ✅ 启动入口
-if __name__ == '__main__':
-    product_data = crawl_smzdm()
+def Notify_Results(datalist):
     file_manager = kMD5FileManager('smzdmMonitorMD5.txt')
+    retn = True
     # 打印所有商品的字典数据
-    if product_data:
+    if datalist:
         print(f"[爬取完成] 获取到 {len(product_data)} 条商品数据:")
-        for product in product_data:
+        for product in datalist:
             if file_manager.write_md5_with_date(product.get('title', '') + product.get('price', '')):
                 notifytxt = f"标题:{product.get('title', '')}\n单价:{product.get('price', '')}\n 链接:{product.get('href', '')}" 
                 print(notifytxt)
                 kCustomNotify.send_wecom_notification("SMZDM提醒",notifytxt,"WECOM_BOT_GENERALNOTIFY_KEY")
             else:
+                retn = False
                 pass
                 #print("md5 write failed")
     else:
         pass
+
+    return retn
+
+if __name__ == '__main__':
+    product_data = crawl_smzdm_jingxuan()
+
+    for page in range(1, 3):  # 爬取第1和第2页
+        product_data.extend(crawl_smzdm_faxian(page))
+        time.sleep(0.1)
+
+    file_manager = Notify_Results(product_data)
+
+
