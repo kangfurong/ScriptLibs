@@ -143,6 +143,7 @@ def crawl_smzdm_jingxuan():
     li_tags = soup.find_all("li", class_="J_feed_za feed-row-wide")
     if not li_tags:
         print("未找到 li 标签 (class=J_feed_za feed-row-wide)")
+        print(html)
         return []
 
     results = []
