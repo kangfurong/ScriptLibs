@@ -100,6 +100,7 @@ def match_excludes(title, exclude_keywords):
 
 # 🌐 请求网页
 def get_html(url, proxy_list, max_retries=3):
+    print(f"准备抓取{url}数据...")
     for attempt in range(max_retries):
         use_proxy = random.random() < 1 and proxy_list
         proxy = random.choice(proxy_list) if use_proxy else None
