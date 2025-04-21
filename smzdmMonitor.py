@@ -134,7 +134,7 @@ def match_whitelist(price, title):
 def crawl_smzdm_jingxuan():
     url = "https://www.smzdm.com/jingxuan/"
     proxy_list = None
-    #proxy_list = load_proxies()
+    proxy_list = load_proxies()
     html = get_html(url, proxy_list)
     if not html:
         return []
@@ -234,7 +234,7 @@ def crawl_smzdm_faxian(page_num):
     print(f"抓取第 {page_num} 页：{url}")
     try:
         proxy_list = None
-        #proxy_list = load_proxies()
+        proxy_list = load_proxies()
         html = get_html(url, proxy_list)
         if not html:
             return []
