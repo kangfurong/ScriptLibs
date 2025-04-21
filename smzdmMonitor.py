@@ -104,8 +104,8 @@ def get_html(url, proxy_list, max_retries=3):
     for attempt in range(max_retries):
         use_proxy = random.random() < 1 and proxy_list
         proxy = random.choice(proxy_list) if use_proxy else None
-        #proxies = {"http": proxy, "https": proxy} if proxy else None
-        proxies = {"http": proxy} if proxy else None
+        proxies = {"http": proxy, "https": proxy} if proxy else None
+        #proxies = {"http": proxy} if proxy else None
         headers = {"User-Agent": random.choice(USER_AGENTS)}
         try:
             print(f"[请求尝试 {attempt + 1}] 使用代理：{bool(proxy)} - {proxy or '直连'}")
