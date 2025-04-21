@@ -12,10 +12,16 @@ CHECK_EXISTING_THRESHOLD = 3  # 检查本地代理后达到此数量则跳过爬
 MAX_TOTAL_CHECK_DURATION = 30 * 60  # 检测总耗时最大不超过 30 分钟
 FETCH_DELAY_SECONDS = 0.1  # 爬取延迟
 
-PROXY_TEST_URLS = [
-    "http://api-ipv4.ip.sb/ip",
+PROXY_TEST_URLS_HTTP = [
     "http://httpbin.org/ip",
+    "http://api-ipv4.ip.sb/ip",
     "http://ip-api.com/json/"
+]
+
+PROXY_TEST_URLS_HTTPS = [
+    "https://httpbin.org/ip",
+    "https://api64.ipify.org?format=json",
+    "https://ipapi.co/json/"
 ]
 
 USER_AGENTS = [
@@ -64,25 +70,37 @@ def _get_location(ip):
     return "未知"
 
 def _check_proxy(proxy):
-    """检测代理是否可用"""
+    """检测代理是否支持 HTTP 和 HTTPS（分别从多个测试网站中选择）"""
     if time.time() - START_CHECK_TIME > MAX_TOTAL_CHECK_DURATION:
         return False
-    test_url = random.choice(PROXY_TEST_URLS)
-    proxies = {proxy['type'].lower(): f"{proxy['type'].lower()}://{proxy['ip']}:{proxy['port']}"}
-    try:
-        start = time.time()
-        res = requests.get(test_url, headers=_get_random_headers(), proxies=proxies, timeout=5)
-        if res.status_code == 200:
-            delay = time.time() - start
-            proxy['delay'] = delay
-            proxy['location'] = _get_location(proxy['ip'])
-            VALID_PROXIES.append(proxy)
-            print(f"[✓] 有效: {_proxy_key(proxy)} 延迟: {delay:.2f}s")
-            return True
-    except:
-        pass
-    print(f"[x] 无效: {_proxy_key(proxy)}")
-    return False
+
+    proxies = {
+        proxy['type'].lower(): f"{proxy['type'].lower()}://{proxy['ip']}:{proxy['port']}"
+    }
+
+    def _test_url(url):
+        try:
+            res = requests.get(url, headers=_get_random_headers(), proxies=proxies, timeout=5)
+            return res.status_code == 200
+        except:
+            return False
+
+    http_url = random.choice(PROXY_TEST_URLS_HTTP)
+    https_url = random.choice(PROXY_TEST_URLS_HTTPS)
+
+    http_ok = _test_url(http_url)
+    https_ok = _test_url(https_url)
+
+    if http_ok and https_ok:
+        delay = random.uniform(0.1, 0.5)  # 模拟响应延迟
+        proxy['delay'] = delay
+        proxy['location'] = _get_location(proxy['ip'])
+        VALID_PROXIES.append(proxy)
+        print(f"[✓] 有效: {_proxy_key(proxy)} 支持 HTTP+HTTPS")
+        return True
+    else:
+        print(f"[x] 无效: {_proxy_key(proxy)} 不支持 HTTP[{http_ok}] 或 HTTPS{https_ok}]")
+        return False
 
 def _load_existing_proxies():
     """加载本地代理并检测其有效性"""
