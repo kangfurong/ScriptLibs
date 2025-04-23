@@ -142,8 +142,9 @@ def match_whitelist(price, title):
                 break
     return matched
 
-def crawl_smzdm_jingxuan():
-    url = "https://www.smzdm.com/jingxuan/"
+def crawl_smzdm_jingxuan(page_num):
+    #url = "https://www.smzdm.com/jingxuan/"
+    url = f"https://www.smzdm.com/jingxuan/p{page_num}/"
     proxy_list = None
     #proxy_list = load_proxies()
     html = get_html(url, proxy_list)
@@ -333,11 +334,15 @@ def Notify_Results(datalist):
     return retn
 
 if __name__ == '__main__':
-    product_data = crawl_smzdm_jingxuan()
+    product_data = []
+
+    for index in range(2, 4):# 爬取第2和第3页
+        product_data.extend(crawl_smzdm_jingxuan(index))
+        time.sleep(0.5)
 
     for page in range(2, 4):  # 爬取第2和第3页
         product_data.extend(crawl_smzdm_faxian(page))
-        time.sleep(0.1)
+        time.sleep(0.5)
 
     file_manager = Notify_Results(product_data)
 
