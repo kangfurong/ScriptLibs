@@ -106,7 +106,18 @@ def get_html(url, proxy_list, max_retries=3):
         proxy = random.choice(proxy_list) if use_proxy else None
         proxies = {"http": proxy, "https": proxy} if proxy else None
         #proxies = {"http": proxy} if proxy else None
-        headers = {"User-Agent": random.choice(USER_AGENTS)}
+
+        # 从环境变量读取 Cookie
+        env_cookie = os.environ.get("CRAWL_SMZDM_COOKIE", "").strip()
+        if not env_cookie:
+            print("⚠️ 未设置环境变量 CRAWL_SMZDM_COOKIE，将不携带 Cookie 进行请求，可能导致反爬...")
+
+        headers = {
+            "User-Agent": random.choice(USER_AGENTS),
+        }
+        if env_cookie:
+            headers["Cookie"] = env_cookie
+
         try:
             print(f"[请求尝试 {attempt + 1}] 使用代理：{bool(proxy)} - {proxy or '直连'}")
             response = requests.get(url, headers=headers, proxies=proxies, timeout=10)
@@ -134,7 +145,7 @@ def match_whitelist(price, title):
 def crawl_smzdm_jingxuan():
     url = "https://www.smzdm.com/jingxuan/"
     proxy_list = None
-    proxy_list = load_proxies()
+    #proxy_list = load_proxies()
     html = get_html(url, proxy_list)
     if not html:
         return []
@@ -234,7 +245,7 @@ def crawl_smzdm_faxian(page_num):
     print(f"抓取第 {page_num} 页：{url}")
     try:
         proxy_list = None
-        proxy_list = load_proxies()
+        #proxy_list = load_proxies()
         html = get_html(url, proxy_list)
         if not html:
             return []
@@ -329,5 +340,4 @@ if __name__ == '__main__':
         time.sleep(0.1)
 
     file_manager = Notify_Results(product_data)
-
 
