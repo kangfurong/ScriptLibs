@@ -127,7 +127,7 @@ def get_html(url, proxy_list, max_retries=3):
                 print(f"[状态码异常] {response.status_code}")
         except Exception as e:
             print(f"[请求异常] {e}")
-        time.sleep(1)
+        time.sleep(3)
     print("[请求失败] 多次重试后放弃。")
     return None
 
@@ -335,7 +335,7 @@ def Notify_Results(datalist):
 if __name__ == '__main__':
     product_data = crawl_smzdm_jingxuan()
 
-    for page in range(1, 3):  # 爬取第1和第2页
+    for page in range(2, 4):  # 爬取第2和第3页
         product_data.extend(crawl_smzdm_faxian(page))
         time.sleep(0.1)
 
