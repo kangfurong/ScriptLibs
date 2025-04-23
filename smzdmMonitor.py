@@ -25,6 +25,11 @@ whitekeylist = [
         "price_range": (1000, 4000)
     },
     {
+        "keywords": [["苹果", "apple"], ["m3","m4"],["macbook air",]],
+        "exclude_keywords": [["二手"],["以旧换新"],],
+        "price_range": (2000, 4500)
+    },
+    {
         "keywords": [["华为", "huawei"], ["p70","pura 70","mate 70","mate 60"],["256","512","1T"]],
         "exclude_keywords": [["二手"],["以旧换新"],],
         "price_range": (1000, 4000)
