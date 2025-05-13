@@ -64,7 +64,7 @@ def append_new_md5s(new_md5s):
             file.write(md5 + '\n')
     print(f"已将 {len(new_md5s)} 个新的MD5值追加到文件。")
 
-def print_message_by_day_or_week(message_dict, week_message_dict, specific_date_message_dict, current_date_str, existing_md5):
+def print_message_by_dict_rules(message_dict, week_message_dict, specific_date_message_dict, current_date_str, existing_md5):
     new_md5s = []  # 存储待写入文件的新MD5值
     messages_to_output = []  # 用于存储需要输出的消息
     try:
@@ -254,7 +254,7 @@ def main():
     existing_md5 = load_existing_md5()
 
     # 自动获取当前日期并查询对应的输出文本
-    new_md5s, messages_to_output = print_message_by_day_or_week(day_message_dict, week_message_dict, specific_date_message_dict, current_date_str, existing_md5)
+    new_md5s, messages_to_output = print_message_by_dict_rules(day_message_dict, week_message_dict, specific_date_message_dict, current_date_str, existing_md5)
 
     # 输出合并的消息文本
     if messages_to_output:
