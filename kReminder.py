@@ -64,7 +64,7 @@ def append_new_md5s(new_md5s):
             file.write(md5 + '\n')
     print(f"已将 {len(new_md5s)} 个新的MD5值追加到文件。")
 
-def print_message_by_day_or_week(message_dict, week_message_dict, current_date_str, existing_md5):
+def print_message_by_day_or_week(message_dict, week_message_dict, specific_date_message_dict, current_date_str, existing_md5):
     new_md5s = []  # 存储待写入文件的新MD5值
     messages_to_output = []  # 用于存储需要输出的消息
     try:
@@ -81,6 +81,25 @@ def print_message_by_day_or_week(message_dict, week_message_dict, current_date_s
 
         # 查找字典中对应的日期号数（按日期查找）
         date_str = input_datetime.strftime('%Y-%m-%d')
+
+        # 先按特定年月日查找
+        if date_str in specific_date_message_dict:
+            messages = specific_date_message_dict[date_str]
+            for time, message_list in messages.items():
+                # 将字典中的时间转换为 datetime 格式以进行比较
+                time_obj = datetime.strptime(time, '%H:%M').replace(year=year, month=month, day=day)
+                time_diff = abs(current_date - time_obj)
+                # 判断当前时间与字典中的时间差是否在6分钟以内
+                if time_diff <= timedelta(minutes=6):
+                    for message in message_list:
+                        # 计算文本的MD5值并检查
+                        calculated_md5 = calculate_md5(date_str, time, weekday, message)
+                        # 如果MD5值不在现有的MD5记录中，添加到新MD5集合
+                        if calculated_md5 not in existing_md5:
+                            messages_to_output.append(f"- {message}")
+                            new_md5s.append(calculated_md5)
+        else:
+            pass
 
         # 先按号数（日期）查找
         for key in message_dict:
@@ -104,6 +123,8 @@ def print_message_by_day_or_week(message_dict, week_message_dict, current_date_s
                             if calculated_md5 not in existing_md5:
                                 messages_to_output.append(f"- {message}")
                                 new_md5s.append(calculated_md5)
+            else:
+                pass
 
         # 按星期几查找
         if weekday in week_message_dict:
@@ -127,7 +148,7 @@ def print_message_by_day_or_week(message_dict, week_message_dict, current_date_s
                             new_md5s.append(calculated_md5)
 
         else:
-            print(f"{date_str} 或 {weekday} - 没有找到对应的输出文本。")
+            print(f" {weekday} - 没有找到对应的输出文本。")
     
     except ValueError as e:
         print(f"错误: {e}，请检查日期号数的输入。")
@@ -218,6 +239,14 @@ def main():
         }
     }
 
+    # 预定义特定年月日对应的时间和输出文本
+    specific_date_message_dict = {
+        '2025-05-14': {
+            '10:00': ['测试日期任务：12345678'],
+        },
+        # 其他特定日期的任务...
+    }
+
     # 检查并更新文件中的日期
     current_date_str = check_and_update_date()
 
@@ -225,7 +254,7 @@ def main():
     existing_md5 = load_existing_md5()
 
     # 自动获取当前日期并查询对应的输出文本
-    new_md5s, messages_to_output = print_message_by_day_or_week(day_message_dict, week_message_dict, current_date_str, existing_md5)
+    new_md5s, messages_to_output = print_message_by_day_or_week(day_message_dict, week_message_dict, specific_date_message_dict, current_date_str, existing_md5)
 
     # 输出合并的消息文本
     if messages_to_output:
