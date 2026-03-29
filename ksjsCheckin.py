@@ -28,7 +28,7 @@ cookies = cookie_text.splitlines()
 
 def get_baoxiang(token, __NS_sig3):
     print('💎💎💎💎开始领取宝箱💎💎💎💎')
-    access_token = ''
+    baoxianV = "宝箱"
     try:
         url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/treasureBox/report?__NS_sig3=" + __NS_sig3 + "&sigCatVer=1"
 
@@ -56,14 +56,14 @@ def get_baoxiang(token, __NS_sig3):
         resp_json = resp.json()
         if resp_json['result'] == 1:
             title_reward_count = resp_json['data']['title']['rewardCount']
-            print(f"得到金币：{title_reward_count}")
+            baoxianV += f"金币：{title_reward_count}"
         else:
-            print(resp_json['error_msg'])
+            baoxianV += resp_json['error_msg']
     except:
-        print(f"获取异常:{traceback.format_exc()}")
+        baoxianV += f"异常:{traceback.format_exc()}"
         
-
-    return access_token
+    print(baoxianV)
+    return baoxianV
 
 def get_money(token):
     print('🥰🥰🥰🥰🥰开始获取当前的现金💰️💰️💰️💰️💰️')
@@ -97,7 +97,7 @@ def get_money(token):
         #print(resp_json)
         nickname = resp_json['data']['userData']['nickname']
         
-        moneyrtn = f"用户：{nickname},余额：{money},金币：{coin}\n"
+        moneyrtn = f"用户：{nickname}\n余额：{money}\n总金币：{coin}\n"
         print(moneyrtn)
     except:
         print(f"获取异常:{traceback.format_exc()}")
@@ -107,6 +107,7 @@ def get_money(token):
 
 def get_qiandao(token, __NS_sig3):
     print('❤❤❤❤❤开始执行签到❤❤❤❤❤')
+    qiandaoV = "签到"
     try:
         url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/signIn/report?__NS_sig3=" + __NS_sig3 + "&sigCatVer=1"
 
@@ -145,11 +146,14 @@ def get_qiandao(token, __NS_sig3):
                 todaySignInAmount = resp_json['data']['signInUnionSpecialAreaData']['todaySignInAmount']
                 print(f"{subtitle}")
                 print(f"今日签到得到：{todaySignInAmount}元")
+                qiandaoV += f"{todaySignInAmount}"
         else:
-            print(resp_json['error_msg'])
+            qiandaoV += resp_json['error_msg']
     except:
-        print(f"获取异常:{traceback.format_exc()}")
-
+        qiandaoV += f"异常:{traceback.format_exc()}"
+    
+    print(qiandaoV)
+    return  qiandaoV
 
 def gen_tokensig(sig,salt=""):
     v = sig + salt
@@ -168,10 +172,13 @@ def gen_sig(params,data):
 
 
 def execCheckin(cookieitem):
-    get_baoxiang(cookieitem, "273770408664a7a2ea7b10787f7e62718c6a7e50b5b0f4654b2568686e6e6d6c5373")
+    baoxianRtn = get_baoxiang(cookieitem, "273770408664a7a2ea7b10787f7e62718c6a7e50b5b0f4654b2568686e6e6d6c5373")
     
-    get_qiandao(cookieitem, "0b1b5c6c1243e48ec657335453525d3e5ff0b056f69cd8490b5e4444424241407f5f")
+    qiandaoRtn = get_qiandao(cookieitem, "0b1b5c6c1243e48ec657335453525d3e5ff0b056f69cd8490b5e4444424241407f5f")
     value = get_money(cookieitem)
+    value += baoxianRtn
+    value += qiandaoRtn
+    
     
     return value
     
