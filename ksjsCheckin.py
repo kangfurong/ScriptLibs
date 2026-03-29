@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-name: 快手极速版账号信息版
-cron: 40 1 * * *
+name: 快手极速版多用户版
+cron: 20 10 08-23/3 * * *
 """
 
 import os
