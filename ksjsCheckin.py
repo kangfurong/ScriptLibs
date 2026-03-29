@@ -17,10 +17,10 @@ import traceback
 
 
 # ===== 环境变量 =====
-cookie_text = os.getenv("KSJS_COOKIE")
+cookie_text = os.getenv("K_KSJS_COOKIE")
 
 if not cookie_text:
-    print("❌ 未设置 KSJS_COOKIE")
+    print("❌ 未设置 K_KSJS_COOKIE")
     exit(0)
 
 cookies = cookie_text.splitlines()
