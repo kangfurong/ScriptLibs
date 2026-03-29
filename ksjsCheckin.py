@@ -98,7 +98,7 @@ def get_money(token):
         nickname = resp_json['data']['userData']['nickname']
         
         moneyrtn = f"用户：{nickname},余额：{money},金币：{coin}\n"
-        
+        print(moneyrtn)
     except:
         print(f"获取异常:{traceback.format_exc()}")
 
