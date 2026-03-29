@@ -5,11 +5,16 @@ cron: 40 1 * * *
 """
 
 import os
+import sys
 import requests
 import time
 import random
 import json
 import kCustomNotify
+import hashlib
+import traceback
+
+
 
 # ===== 环境变量 =====
 cookie_text = os.getenv("KSJS_COOKIE")
@@ -20,80 +25,160 @@ if not cookie_text:
 
 cookies = cookie_text.splitlines()
 
-# ===== 接口 =====
-sign_url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/signIn/report"
-box_url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/treasureBox/report"
-info_url = "https://nebula.kuaishou.com/rest/wd/encourage/incentive/userInfo"
 
-# ===== UA =====
-UA_LIST = [
-    "kwai-android/11.3.20 (Linux; Android 11; Redmi K30)",
-    "kwai-android/11.0.10 (Linux; Android 10; MI 8)",
-    "kwai-android/10.8.30 (Linux; Android 9; ONEPLUS A6000)",
-    "kwai-android/11.5.40 (Linux; Android 12; Mi 11)",
-]
-
-
-
-# ===== 请求头 =====
-def build_headers(cookie):
-    return {
-        "Host": "nebula.kuaishou.com",
-        "Connection": "keep-alive",
-        "Accept": "*/*",
-        "User-Agent": random.choice(UA_LIST),
-        "Referer": "https://nebula.kuaishou.com/",
-        "Accept-Language": "zh-CN,zh;q=0.9",
-        "Cookie": cookie.strip()
-    }
-
-# ===== 请求 =====
-def request(url, headers):
+def get_baoxiang(token, __NS_sig3):
+    print('💎💎💎💎开始领取宝箱💎💎💎💎')
+    access_token = ''
     try:
-        time.sleep(random.uniform(1.5, 4.5))
-        res = requests.get(url, headers=headers, timeout=10)
-        return res.text
-    except Exception as e:
-        return ""
+        url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/treasureBox/report?__NS_sig3=" + __NS_sig3 + "&sigCatVer=1"
 
-# ===== 获取用户信息 =====
-def get_user_info(headers):
-    text = request(info_url, headers)
+        # 定义请求头
+        headers = {
+            "Host": "nebula.kuaishou.com",
+            "Connection": "keep-alive",
+            "Content-Length": "2",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 14; 23113RKC6C Build/UKQ1.230804.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/90.0.4430.226 KsWebView/1.8.90.675 (rel) Mobile Safari/537.36 Yoda/3.1.7-alpha33-intercept1 ksNebula/12.5.20.8014 OS_PRO_BIT/64 MAX_PHY_MEM/15199 AZPREFIX/az4 ICFO/0 StatusHT/34 TitleHT/43 NetType/WIFI ISLP/0 ISDM/0 ISLB/0 locale/zh-cn DPS/19.822 DPP/99 CT/0 ISLM/0",
+            "content-type": "application/json",
+            "Accept": "*/*",
+            "Origin": "https://nebula.kuaishou.com",
+            "X-Requested-With": "com.kuaishou.nebula",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty",
+            "Referer": "https://nebula.kuaishou.com/nebula/task/earning?source=timer&layoutType=4&hyId=nebula_earning",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Cookie": token
+        }
 
-    try:
-        data = json.loads(text)
-
-        nickname = data["data"]["user"]["nickname"]
-        coin = data["data"]["totalCoin"]
-        money = data["data"]["totalCash"]
-
-        return nickname, coin, money
+        # 发送 POST 请求
+        resp = requests.post(url, headers=headers, data=json.dumps({}))
+        resp_json = resp.json()
+        if resp_json['result'] == 1:
+            title_reward_count = resp_json['data']['title']['rewardCount']
+            print(f"得到金币：{title_reward_count}")
+        else:
+            print(resp_json['error_msg'])
     except:
-        return "获取失败", 0, 0
+        print(f"获取异常:{traceback.format_exc()}")
+        
 
-# ===== 执行账号任务 =====
-def run(cookie, index):
-    headers = build_headers(cookie)
+    return access_token
 
-    print(f"\n========== 账号 {index+1} ==========")
+def get_money(token):
+    print('🥰🥰🥰🥰🥰开始获取当前的现金💰️💰️💰️💰️💰️')
+    moneyrtn = ''
+    try:
+        url = "https://nebula.kuaishou.com/rest/n/nebula/activity/earn/overview/basicInfo"
 
-    # 获取信息
-    nickname, coin, money = get_user_info(headers)
-    print("昵称:", nickname)
-    print("金币:", coin)
-    print("余额:", money)
+        # 定义请求头
+        headers = {
+            "Host": "nebula.kuaishou.com",
+            "Connection": "keep-alive",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 14; 23113RKC6C Build/UKQ1.230804.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/90.0.4430.226 KsWebView/1.8.90.675 (rel) Mobile Safari/537.36 Yoda/3.1.7-alpha33-intercept1 ksNebula/12.5.20.8014 OS_PRO_BIT/64 MAX_PHY_MEM/15199 AZPREFIX/az4 ICFO/0 StatusHT/34 TitleHT/43 NetType/WIFI ISLP/0 ISDM/0 ISLB/0 locale/zh-cn DPS/19.822 DPP/99 CT/0 ISLM/0",
+            "content-type": "application/json",
+            "Accept": "*/*",
+            "X-Requested-With": "com.kuaishou.nebula",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty",
+            "Referer": "https://nebula.kuaishou.com/nebula/task/earning?source=timer&layoutType=4&hyId=nebula_earning",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Cookie": token
+        }
 
-    # 签到
-    sign_res = request(sign_url, headers)
-    print("签到:", sign_res)
+        # 发送 POST 请求
+        resp = requests.get(url, headers=headers)
+        
+        resp_json = resp.json()
+        money = resp_json['data']['allCash']
+        coin = resp_json['data']['totalCoin']
+        #print(resp_json)
+        nickname = resp_json['data']['userData']['nickname']
+        
+        moneyrtn = f"用户：{nickname},余额：{money},金币：{coin}\n"
+        
+    except:
+        print(f"获取异常:{traceback.format_exc()}")
 
-    time.sleep(random.randint(5, 10))
+    return moneyrtn
 
-    # 宝箱
-    box_res = request(box_url, headers)
-    print("宝箱:", box_res)
 
-    return nickname, coin, money
+def get_qiandao(token, __NS_sig3):
+    print('❤❤❤❤❤开始执行签到❤❤❤❤❤')
+    try:
+        url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/signIn/report?__NS_sig3=" + __NS_sig3 + "&sigCatVer=1"
+
+        # 定义请求头
+        headers = {
+            "Host": "nebula.kuaishou.com",
+            "Connection": "keep-alive",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 14; 23113RKC6C Build/UKQ1.230804.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/90.0.4430.226 KsWebView/1.8.90.675 (rel) Mobile Safari/537.36 Yoda/3.1.7-alpha33-intercept1 ksNebula/12.5.20.8014 OS_PRO_BIT/64 MAX_PHY_MEM/15199 AZPREFIX/az4 ICFO/0 StatusHT/34 TitleHT/43 NetType/WIFI ISLP/0 ISDM/0 ISLB/0 locale/zh-cn DPS/19.822 DPP/99 CT/0 ISLM/0",
+            "content-type": "application/json",
+            "Accept": "*/*",
+            "X-Requested-With": "com.kuaishou.nebula",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty",
+            "Referer": "https://nebula.kuaishou.com/nebula/task/earning?source=timer&layoutType=4&hyId=nebula_earning",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Cookie": token
+        }
+
+        # 发送 POST 请求
+        resp = requests.get(url, headers=headers)
+        resp_json = resp.json()
+
+        #print(resp.text)
+
+        if resp_json['result'] == 1:
+            if 'reportRewardResult' in resp_json['data']:
+                title = resp_json['data']['reportRewardResult']['awardToast']['title']
+                print(f"{title}")
+                bsd1 = resp_json['data']['reportRewardResult']['awardToast']['basicSignInAwardResultShow']['bottomText']
+                bsd2 = resp_json['data']['reportRewardResult']['awardToast']['basicSignInAwardResultShow']['bottomText']
+                print(f"正常：{bsd1}  额外：{bsd2}")
+            elif 'signInUnionSpecialAreaData' in resp_json['data']:
+                subtitle = resp_json['data']['signInUnionSpecialAreaData']['subtitle']
+                todaySignInAmount = resp_json['data']['signInUnionSpecialAreaData']['todaySignInAmount']
+                print(f"{subtitle}")
+                print(f"今日签到得到：{todaySignInAmount}元")
+        else:
+            print(resp_json['error_msg'])
+    except:
+        print(f"获取异常:{traceback.format_exc()}")
+
+
+def gen_tokensig(sig,salt=""):
+    v = sig + salt
+    return hashlib.sha256(v.encode('utf-8')).hexdigest()
+
+def gen_sig(params,data):
+    dd = dict(params,**data)
+    dict_sort_res = dict(sorted(dd.items(),key=lambda x:x[0]))
+    ss = ""
+    for key,value in dict_sort_res.items():
+        if key not in ["sig","__NS_sig3","sig2"]:
+            ss += f"{key}={value}"
+    ss += "ca8e86efb32e"
+    return hashlib.md5(ss.encode()).hexdigest()
+
+
+
+def execCheckin(cookieitem):
+    get_baoxiang(_cookieitem, "273770408664a7a2ea7b10787f7e62718c6a7e50b5b0f4654b2568686e6e6d6c5373")
+    #get_fanbu(_cookie, "HUDR_sFnX-HFuAE5VsdPNKlLOPr4ntwVLcugxjxZz8_z61EHYFY07AGiHwMelb_ny_pMHxR_0BjgEKKQba1Uc3eSWmMYZtd0w8l4XDj-3MCjD__Ta_XvZSJ4TCB8KqqVKMgRgdptyHjC4q5WxhjlivWeuiUH73Q5s2-4u88UkwHrtgNYFpaoTLyzpjhJN-kWm8EpIT1cd-4gSarv9lyc5eoynpqIeL1p8oDC_aNVs06Eqr9eEDO9WQN6bPOljEgPJOUyOx2TUE6Zol22dloUXNTFoJdgLPRKfw_RHixi41S59Nig74-a-EOa96K3w3f2SK367nfaMVvB8TYO9Zh3FHGMRsgPwfpaekre0Ra5-ZMIxO_S1Jpimvzg8hzW00xtV2EkEfYDNFvw68MgnbnxspI6ndwP4goeqm_Gr_PeS3rmTNMpgPIhHOlYIzTyVqRydZeTwh5ckgKW0moc1WndwyJqoqIh222uMxhDr_q2L_eyoTl7L7Moo_r17aDmbuEH0je0LPc3uCfeFHFlC$HE_4b541fe2ab6646f3d69101f15f438f046f01070200376b00000041da22b49a5cf4d691019b563eda7b563e1200")
+    get_qiandao(_cookieitem, "0b1b5c6c1243e48ec657335453525d3e5ff0b056f69cd8490b5e4444424241407f5f")
+    value = get_money(_cookieitem)
+    
+    return value
+    
+    
+
+
+
 
 # ===== 主程序 =====
 def main():
@@ -103,10 +188,7 @@ def main():
 
     for i, ck in enumerate(cookies):
         if ck.strip():
-            nickname, coin, money = run(ck, i)
-
-            msg += f"{nickname}\n金币: {coin}\n余额: {money}\n\n"
-
+            msg += execCheckin(ck)
             wait = random.randint(30, 60)
             print(f"等待 {wait} 秒\n")
             time.sleep(wait)
