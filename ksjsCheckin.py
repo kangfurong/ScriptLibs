@@ -179,7 +179,7 @@ def execCheckin(cookieitem):
     value += baoxianRtn
     value += '\n'
     value += qiandaoRtn
-    value += '\n'
+    value += '\n\n'
     
     return value
     
