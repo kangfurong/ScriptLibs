@@ -28,7 +28,7 @@ cookies = cookie_text.splitlines()
 
 def get_baoxiang(token, __NS_sig3):
     print('💎💎💎💎开始领取宝箱💎💎💎💎')
-    baoxianV = "宝箱"
+    baoxianV = "宝箱:"
     try:
         url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/treasureBox/report?__NS_sig3=" + __NS_sig3 + "&sigCatVer=1"
 
@@ -107,7 +107,7 @@ def get_money(token):
 
 def get_qiandao(token, __NS_sig3):
     print('❤❤❤❤❤开始执行签到❤❤❤❤❤')
-    qiandaoV = "签到"
+    qiandaoV = "签到:"
     try:
         url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/signIn/report?__NS_sig3=" + __NS_sig3 + "&sigCatVer=1"
 
@@ -177,8 +177,9 @@ def execCheckin(cookieitem):
     qiandaoRtn = get_qiandao(cookieitem, "0b1b5c6c1243e48ec657335453525d3e5ff0b056f69cd8490b5e4444424241407f5f")
     value = get_money(cookieitem)
     value += baoxianRtn
+    value += '\n'
     value += qiandaoRtn
-    
+    value += '\n'
     
     return value
     
