@@ -13,7 +13,6 @@ import kCustomNotify
 
 # ===== 环境变量 =====
 cookie_text = os.getenv("KSJS_COOKIE")
-QYWX_KEY = os.getenv("QYWX_KEY")
 
 if not cookie_text:
     print("❌ 未设置 KSJS_COOKIE")
@@ -34,22 +33,7 @@ UA_LIST = [
     "kwai-android/11.5.40 (Linux; Android 12; Mi 11)",
 ]
 
-# ===== 企业微信推送 =====
-def send_qywx(msg):
-    if not QYWX_KEY:
-        print("未配置企业微信推送")
-        return
 
-    url = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={QYWX_KEY}"
-
-    data = {
-        "msgtype": "text",
-        "text": {
-            "content": msg
-        }
-    }
-
-    requests.post(url, json=data)
 
 # ===== 请求头 =====
 def build_headers(cookie):
@@ -128,7 +112,7 @@ def main():
             time.sleep(wait)
 
     print(msg)
-    send_qywx(msg)
+    kCustomNotify.send_wecom_notification("快手极速版签到",msg,"WECOM_BOT_GENERALNOTIFY_KEY")
 
 if __name__ == "__main__":
     main()
