@@ -8,6 +8,7 @@ import os
 import requests
 import time
 import random
+import kCustomNotify
 
 # ========= 环境变量 =========
 cookie_text = os.getenv("KSJS_COOKIE")
