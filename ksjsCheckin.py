@@ -168,10 +168,10 @@ def gen_sig(params,data):
 
 
 def execCheckin(cookieitem):
-    get_baoxiang(_cookieitem, "273770408664a7a2ea7b10787f7e62718c6a7e50b5b0f4654b2568686e6e6d6c5373")
-    #get_fanbu(_cookie, "HUDR_sFnX-HFuAE5VsdPNKlLOPr4ntwVLcugxjxZz8_z61EHYFY07AGiHwMelb_ny_pMHxR_0BjgEKKQba1Uc3eSWmMYZtd0w8l4XDj-3MCjD__Ta_XvZSJ4TCB8KqqVKMgRgdptyHjC4q5WxhjlivWeuiUH73Q5s2-4u88UkwHrtgNYFpaoTLyzpjhJN-kWm8EpIT1cd-4gSarv9lyc5eoynpqIeL1p8oDC_aNVs06Eqr9eEDO9WQN6bPOljEgPJOUyOx2TUE6Zol22dloUXNTFoJdgLPRKfw_RHixi41S59Nig74-a-EOa96K3w3f2SK367nfaMVvB8TYO9Zh3FHGMRsgPwfpaekre0Ra5-ZMIxO_S1Jpimvzg8hzW00xtV2EkEfYDNFvw68MgnbnxspI6ndwP4goeqm_Gr_PeS3rmTNMpgPIhHOlYIzTyVqRydZeTwh5ckgKW0moc1WndwyJqoqIh222uMxhDr_q2L_eyoTl7L7Moo_r17aDmbuEH0je0LPc3uCfeFHFlC$HE_4b541fe2ab6646f3d69101f15f438f046f01070200376b00000041da22b49a5cf4d691019b563eda7b563e1200")
-    get_qiandao(_cookieitem, "0b1b5c6c1243e48ec657335453525d3e5ff0b056f69cd8490b5e4444424241407f5f")
-    value = get_money(_cookieitem)
+    get_baoxiang(cookieitem, "273770408664a7a2ea7b10787f7e62718c6a7e50b5b0f4654b2568686e6e6d6c5373")
+    
+    get_qiandao(cookieitem, "0b1b5c6c1243e48ec657335453525d3e5ff0b056f69cd8490b5e4444424241407f5f")
+    value = get_money(cookieitem)
     
     return value
     
