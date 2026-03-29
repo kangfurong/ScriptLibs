@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-name: 快手极速版多账号真实请求版
-cron: 30 1 * * *
+name: 快手极速版账号信息版
+cron: 40 1 * * *
 """
 
 import os
 import requests
 import time
 import random
+import json
 import kCustomNotify
 
-# ========= 环境变量 =========
+# ===== 环境变量 =====
 cookie_text = os.getenv("KSJS_COOKIE")
+QYWX_KEY = os.getenv("QYWX_KEY")
 
 if not cookie_text:
     print("❌ 未设置 KSJS_COOKIE")
@@ -19,11 +21,12 @@ if not cookie_text:
 
 cookies = cookie_text.splitlines()
 
-# ========= 接口 =========
+# ===== 接口 =====
 sign_url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/signIn/report"
 box_url = "https://nebula.kuaishou.com/rest/wd/encourage/unionTask/treasureBox/report"
+info_url = "https://nebula.kuaishou.com/rest/wd/encourage/incentive/userInfo"
 
-# ========= 随机UA =========
+# ===== UA =====
 UA_LIST = [
     "kwai-android/11.3.20 (Linux; Android 11; Redmi K30)",
     "kwai-android/11.0.10 (Linux; Android 10; MI 8)",
@@ -31,8 +34,24 @@ UA_LIST = [
     "kwai-android/11.5.40 (Linux; Android 12; Mi 11)",
 ]
 
+# ===== 企业微信推送 =====
+def send_qywx(msg):
+    if not QYWX_KEY:
+        print("未配置企业微信推送")
+        return
 
-# ========= 构造真实请求头 =========
+    url = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={QYWX_KEY}"
+
+    data = {
+        "msgtype": "text",
+        "text": {
+            "content": msg
+        }
+    }
+
+    requests.post(url, json=data)
+
+# ===== 请求头 =====
 def build_headers(cookie):
     return {
         "Host": "nebula.kuaishou.com",
@@ -44,70 +63,72 @@ def build_headers(cookie):
         "Cookie": cookie.strip()
     }
 
-# ========= 请求 =========
+# ===== 请求 =====
 def request(url, headers):
     try:
         time.sleep(random.uniform(1.5, 4.5))
         res = requests.get(url, headers=headers, timeout=10)
         return res.text
     except Exception as e:
-        return f"请求失败: {e}"
+        return ""
 
-# ========= 判断Cookie =========
-def check_cookie(text):
-    if "未登录" in text or "error" in text:
-        return False
-    return True
+# ===== 获取用户信息 =====
+def get_user_info(headers):
+    text = request(info_url, headers)
 
-# ========= 单账号执行 =========
+    try:
+        data = json.loads(text)
+
+        nickname = data["data"]["user"]["nickname"]
+        coin = data["data"]["totalCoin"]
+        money = data["data"]["totalCash"]
+
+        return nickname, coin, money
+    except:
+        return "获取失败", 0, 0
+
+# ===== 执行账号任务 =====
 def run(cookie, index):
     headers = build_headers(cookie)
 
-    print(f"\n========== 👤 账号 {index+1} ==========")
+    print(f"\n========== 账号 {index+1} ==========")
 
+    # 获取信息
+    nickname, coin, money = get_user_info(headers)
+    print("昵称:", nickname)
+    print("金币:", coin)
+    print("余额:", money)
+
+    # 签到
     sign_res = request(sign_url, headers)
-    print("📅 签到结果:", sign_res)
-
-    valid = check_cookie(sign_res)
+    print("签到:", sign_res)
 
     time.sleep(random.randint(5, 10))
 
+    # 宝箱
     box_res = request(box_url, headers)
-    print("🎁 宝箱结果:", box_res)
+    print("宝箱:", box_res)
 
-    return valid
+    return nickname, coin, money
 
-# ========= 主程序 =========
+# ===== 主程序 =====
 def main():
-    print("🚀 快手极速版任务开始\n")
+    print("🚀 快手任务开始\n")
 
-    ok_list = []
-    fail_list = []
+    msg = "【快手极速版】\n\n"
 
     for i, ck in enumerate(cookies):
         if ck.strip():
-            valid = run(ck, i)
+            nickname, coin, money = run(ck, i)
 
-            if valid:
-                ok_list.append(f"账号{i+1} 正常")
-            else:
-                fail_list.append(f"账号{i+1} Cookie失效")
+            msg += f"{nickname}\n金币: {coin}\n余额: {money}\n\n"
 
             wait = random.randint(30, 60)
-            print(f"⏳ 等待 {wait} 秒进入下一个账号\n")
+            print(f"等待 {wait} 秒\n")
             time.sleep(wait)
 
-    # ========= 汇总 =========
-    msg = "【快手极速版任务结果】\n\n"
-
-    if ok_list:
-        msg += "正常账号：\n" + "\n".join(ok_list) + "\n\n"
-
-    if fail_list:
-        msg += "失效账号：\n" + "\n".join(fail_list) + "\n\n"
-
     print(msg)
-    kCustomNotify.send_wecom_notification("快手极速签到",notifytxt,"WECOM_BOT_GENERALNOTIFY_KEY")
+    send_qywx(msg)
 
 if __name__ == "__main__":
     main()
