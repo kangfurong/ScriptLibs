@@ -132,7 +132,7 @@ def get_qiandao(token, __NS_sig3):
         resp = requests.get(url, headers=headers)
         resp_json = resp.json()
 
-        #print(resp.text)
+        print(resp.text)
 
         if resp_json['result'] == 1:
             if 'reportRewardResult' in resp_json['data']:
